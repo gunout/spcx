@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🚀 SPCX & Space ETF Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bleu:#002395;--bleu-clair:#1D4ED8;--bleu-moyen:#3B82F6;--bleu-pale:#DBEAFE;--bleu-tres-pale:#EFF6FF;
+  --rouge:#ED2939;--rouge-fonce:#C8102E;--vert:#22c55e;--jaune:#f59e0b;
+  --blanc:#fff;--bg:#f7fafd;--panel:#fff;--border:#dbe6f3;--text:#0f172a;--muted:#64748b;
+  --noir-espace:#0a0e1a;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  background:var(--bg);color:var(--text);font-size:15px;padding-top:6px;
+}
+.tricolore{position:fixed;top:0;left:0;right:0;height:6px;z-index:100;display:flex;box-shadow:0 1px 4px rgba(0,0,0,.15);}
+.tricolore i{flex:1;}
+.tricolore i:nth-child(1){background:#002395;}
+.tricolore i:nth-child(2){background:#fff;}
+.tricolore i:nth-child(3){background:#ED2939;}
+.app{display:flex;min-height:100vh;align-items:flex-start;}
+
+.sidebar{
+  width:290px;flex:0 0 290px;
+  background:linear-gradient(180deg,#0a0e1a 0%,#001a4d 100%);
+  color:#e2e8f0;
+  border-right:1px solid rgba(255,255,255,.08);
+  padding:24px 16px 40px;
+  height:100vh;position:sticky;top:0;overflow-y:auto;
+}
+.sidebar h2{font-size:1rem;margin:0 0 16px;color:#fff;letter-spacing:.3px;font-weight:800;display:flex;align-items:center;gap:8px;}
+.sidebar h2::before{content:'';width:6px;height:20px;border-radius:3px;background:linear-gradient(180deg,#3B82F6,#ED2939);}
+.sidebar h3{font-size:.73rem;text-transform:uppercase;letter-spacing:.1em;color:#93c5fd;margin:22px 0 9px;font-weight:800;border-bottom:1px dashed rgba(255,255,255,.15);padding-bottom:6px;}
+.nav{display:flex;flex-direction:column;gap:5px;}
+.nav-btn{
+  text-align:left;padding:10px 13px;border-radius:9px;border:1px solid transparent;
+  background:transparent;color:#cbd5e1;font-size:.87rem;cursor:pointer;
+  transition:.18s;font-family:inherit;font-weight:500;
+}
+.nav-btn:hover{background:rgba(59,130,246,.15);color:#fff;}
+.nav-btn.active{
+  background:linear-gradient(90deg,#1D4ED8,#3B82F6);
+  color:#fff;font-weight:700;
+  box-shadow:0 4px 12px rgba(29,78,216,.4);
+}
+.select-wrap{display:flex;flex-direction:column;gap:6px;margin-top:4px;}
+.sidebar select{
+  font-family:inherit;font-size:.85rem;padding:9px 12px;border-radius:9px;
+  border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);
+  color:#fff;outline:none;width:100%;
+}
+.sidebar select option{background:#0a0e1a;color:#fff;}
+.sidebar label{font-size:.75rem;color:#94a3b8;font-weight:600;display:block;margin-top:10px;}
+.resume{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:11px;padding:12px 14px;font-size:.78rem;line-height:1.6;margin-top:8px;
+}
+.resume strong{color:#93c5fd;display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.resume p{margin:3px 0;color:#cbd5e1;}
+.resume .big{color:#fca5a5;font-weight:800;}
+
+.timezone-badge{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-left:3px solid #3B82F6;border-radius:9px;
+  padding:9px 12px;font-size:.74rem;color:#cbd5e1;line-height:1.55;margin-top:8px;
+}
+.timezone-badge .clock{color:#fff;font-weight:800;font-variant-numeric:tabular-nums;}
+.timezone-badge .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}
+
+.sidebar .btn{
+  width:100%;padding:9px 12px;border-radius:9px;border:none;
+  background:linear-gradient(90deg,#1D4ED8,#3B82F6);
+  color:#fff;font-family:inherit;font-size:.8rem;font-weight:700;
+  cursor:pointer;transition:.18s;margin-top:10px;
+}
+.sidebar .btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,.4);}
+.sidebar .btn:disabled{opacity:.6;cursor:wait;}
+
+.main{flex:1;min-width:0;padding:28px 34px 70px;}
+.main-header{
+  font-size:2rem;font-weight:900;text-align:center;line-height:1.18;
+  background:linear-gradient(90deg,#002395 0%,#1D4ED8 45%,#ED2939 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  margin:0 0 .5rem;letter-spacing:-.5px;
+}
+.sub-header{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:28px;line-height:1.6;max-width:820px;margin-left:auto;margin-right:auto;}
+.sub-header strong{color:var(--bleu);}
+.section-header{
+  color:var(--bleu);font-size:1.02rem;font-weight:800;letter-spacing:.02em;
+  border-bottom:3px solid transparent;
+  border-image:linear-gradient(90deg,var(--bleu),var(--bleu-moyen),var(--rouge)) 1;
+  padding-bottom:.5rem;margin:36px 0 18px;display:flex;align-items:center;gap:10px;
+}
+.section-header:first-of-type{margin-top:8px;}
+
+.spacex-card{
+  background:linear-gradient(135deg,#0a0e1a 0%,#001a4d 60%,#002395 100%);
+  color:#fff;border-radius:14px;padding:20px 24px;margin-bottom:20px;
+  border-left:5px solid #ED2939;
+  box-shadow:0 6px 22px rgba(0,35,149,.25);
+}
+.spacex-card b{font-size:1.1rem;color:#93c5fd;}
+.spacex-card .meta{font-size:.82rem;opacity:.85;margin-top:6px;line-height:1.6;}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px;}
+.kpi-card{
+  background:#fff;border-radius:14px;padding:18px 20px;
+  box-shadow:0 2px 10px rgba(0,35,149,.06);
+  border-left:5px solid var(--bleu);transition:.22s;
+}
+.kpi-card:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(0,35,149,.14);}
+.kpi-card.rouge{border-left-color:var(--rouge);}
+.kpi-card.vert{border-left-color:var(--vert);}
+.kpi-card.jaune{border-left-color:var(--jaune);}
+.kpi-card .label{color:var(--muted);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.kpi-card .value{font-size:1.9rem;font-weight:900;color:var(--bleu);line-height:1.1;letter-spacing:-.5px;font-variant-numeric:tabular-nums;}
+.kpi-card.rouge .value{color:var(--rouge);}
+.kpi-card.vert .value{color:var(--vert);}
+.kpi-card.jaune .value{color:var(--jaune);}
+.kpi-card .sub{color:var(--muted);font-size:.75rem;margin-top:4px;}
+.delta-up{color:var(--vert);font-weight:800;}
+.delta-down{color:var(--rouge);font-weight:800;}
+
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:18px;margin-bottom:20px;}
+.chart-box{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,35,149,.05);}
+.chart-box h3{margin:0 0 14px;color:var(--bleu);font-size:.95rem;font-weight:800;display:flex;align-items:center;gap:8px;}
+.chart-box .canvas-wrap{position:relative;height:300px;}
+.chart-box.tall .canvas-wrap{height:420px;}
+
+.score-list{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
+.score-card{
+  border-radius:12px;padding:16px 20px;color:#fff;
+  display:grid;grid-template-columns:2.2fr 1fr 1fr 0.8fr 0.8fr 0.9fr;
+  align-items:center;gap:12px;
+  box-shadow:0 4px 14px rgba(0,0,0,.08);
+  transition:.2s;
+}
+.score-card:hover{transform:translateX(3px);}
+.score-excellent{background:linear-gradient(135deg,#059669,#22c55e);}
+.score-good{background:linear-gradient(135deg,#1D4ED8,#3B82F6);}
+.score-average{background:linear-gradient(135deg,#f59e0b,#fbbf24);}
+.score-poor{background:linear-gradient(135deg,#ED2939,#C8102E);}
+.score-card .sym{font-weight:900;font-size:1.05rem;}
+.score-card .name{font-size:.72rem;opacity:.92;}
+.score-card .cell{font-size:.85rem;}
+.score-card .big-score{font-size:1.6rem;font-weight:900;text-align:center;}
+.score-card .grade{font-size:.65rem;text-align:center;text-transform:uppercase;letter-spacing:.05em;}
+@media (max-width:800px){
+  .score-card{grid-template-columns:1fr 1fr;gap:6px;padding:12px;}
+  .score-card .big-score{grid-column:span 2;}
+}
+
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:14px;padding:4px;box-shadow:0 2px 8px rgba(0,35,149,.05);overflow-x:auto;margin-bottom:20px;}
+table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:640px;}
+thead{background:linear-gradient(90deg,var(--bleu),var(--bleu-clair));color:#fff;}
+thead th{text-align:left;padding:11px 14px;font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+tbody tr{border-bottom:1px solid #eef2f8;transition:.15s;}
+tbody tr:hover{background:var(--bleu-tres-pale);}
+tbody td{padding:10px 14px;color:#334155;font-variant-numeric:tabular-nums;}
+tbody td strong{color:var(--bleu);font-weight:700;}
+.badge{display:inline-block;padding:3px 9px;border-radius:12px;background:var(--bleu-pale);color:var(--bleu);font-size:.7rem;font-weight:700;}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+@media (max-width:700px){.form-row{grid-template-columns:1fr;}}
+.form-box{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,35,149,.05);}
+.form-box h4{margin:0 0 14px;color:var(--bleu);font-size:.9rem;font-weight:800;}
+.form-field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.form-field label{font-size:.75rem;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:.04em;}
+input,select{
+  font-family:inherit;font-size:.87rem;padding:9px 12px;border-radius:9px;
+  border:1px solid var(--border);background:#fff;color:var(--text);outline:none;width:100%;
+}
+input:focus,select:focus{border-color:var(--bleu-moyen);box-shadow:0 0 0 3px rgba(59,130,246,.18);}
+.btn{
+  padding:10px 18px;border-radius:9px;border:none;
+  background:linear-gradient(90deg,var(--bleu),var(--bleu-clair));
+  color:#fff;font-family:inherit;font-size:.87rem;font-weight:700;
+  cursor:pointer;transition:.18s;width:100%;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,35,149,.3);}
+.btn.rouge{background:linear-gradient(90deg,var(--rouge),var(--rouge-fonce));}
+.btn.vert{background:linear-gradient(90deg,#059669,#22c55e);}
+
+.alert-item{
+  background:#fff;border:1px solid var(--border);border-left:4px solid var(--jaune);
+  border-radius:10px;padding:11px 14px;margin-bottom:9px;
+  display:flex;justify-content:space-between;align-items:center;font-size:.82rem;
+}
+.alert-item button{
+  background:transparent;border:1px solid var(--rouge);color:var(--rouge);
+  padding:5px 12px;border-radius:7px;font-family:inherit;font-size:.75rem;
+  font-weight:700;cursor:pointer;transition:.15s;
+}
+.alert-item button:hover{background:var(--rouge);color:#fff;}
+
+.empty-msg{color:var(--muted);font-style:italic;font-size:.9rem;padding:30px 0;text-align:center;background:#fff;border:1px dashed var(--border);border-radius:12px;}
+.loading-msg{padding:40px;text-align:center;color:var(--bleu);font-weight:700;font-size:1rem;}
+
+.pred-tag{display:inline-block;padding:6px 14px;border-radius:20px;font-weight:800;font-size:.85rem;margin-bottom:14px;}
+.pred-up{background:#dcfce7;color:#166534;}
+.pred-down{background:#fee2e2;color:#991b1b;}
+.pred-neutral{background:#dbeafe;color:#1e40af;}
+
+.footer{margin-top:50px;text-align:center;color:var(--muted);font-size:.78rem;line-height:1.8;border-top:2px solid transparent;border-image:linear-gradient(90deg,var(--bleu),#fff,var(--rouge)) 1;padding-top:20px;}
+.footer strong{color:var(--bleu);}
+
+@media (max-width:900px){
+  .app{flex-direction:column;}
+  .sidebar{width:100%;flex:1 1 auto;height:auto;position:relative;border-right:none;border-bottom:1px solid rgba(255,255,255,.1);}
+  .main{padding:20px 16px 60px;}
+  .main-header{font-size:1.45rem;}
+  .kpi-card .value{font-size:1.5rem;}
+}
+</style>
+</head>
+<body>
+
+<div class="tricolore"><i></i><i></i><i></i></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main" id="mainContent">
+    <div class="loading-msg">🔄 Chargement des cours depuis GitHub…</div>
+  </main>
+</div>
+
+<script>
+/* =========================================================================
+   0. CONFIGURATION GITHUB ACTIONS
+   ========================================================================= */
+const DATA_URL = 'data/stocks.json';
+const CACHE_KEY = 'spcx_stocks_v2';
+const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+
+let STOCK_DATA = {};      // Chargé depuis data/stocks.json
+let DATA_SOURCE = 'Initialisation…';
+let DATA_TIMESTAMP = null;
+
+/* =========================================================================
+   1. DONNÉES DE RÉFÉRENCE
+   ========================================================================= */
+const SPACE_ETFS = {
+  'SPCX': {name:'SPAC & NewSpace ETF',           aum:125e6, expense_ratio:0.75, holdings:25, base:12.50},
+  'UFO':  {name:'Procure Space ETF',              aum:180e6, expense_ratio:0.75, holdings:30, base:18.30},
+  'ARKX': {name:'ARK Space Exploration ETF',      aum:350e6, expense_ratio:0.75, holdings:40, base:15.20},
+  'ROKT': {name:'SPDR S&P Aerospace & Defense',   aum:800e6, expense_ratio:0.35, holdings:45, base:42.50},
+  'ITA':  {name:'iShares US Aerospace & Defense', aum:5.2e9, expense_ratio:0.40, holdings:38, base:115.00},
+  'PPA':  {name:'Invesco Aerospace & Defense',    aum:2.1e9, expense_ratio:0.56, holdings:50, base:95.00}
+};
+
+const SPCX_INFO = {
+  name:'SPAC & NewSpace ETF',
+  issuer:'ProcureAM',
+  inception:'2021-02-17',
+  expense_ratio:0.75,
+  aum:125000000,
+  description:"Le SPCX est un ETF qui investit dans les sociétés spatiales émergentes, incluant les SPACs et les entreprises NewSpace."
+};
+
+const SPCX_HOLDINGS = {
+  'RKLB': {name:'Rocket Lab USA',    weight:12.5, sector:'Lanceurs',       base:5.20},
+  'ASTS': {name:'AST SpaceMobile',   weight:8.2,  sector:'Satellites',     base:22.40},
+  'RDW':  {name:'Redwire',            weight:6.8,  sector:'Infrastructure', base:6.80},
+  'PL':   {name:'Planet Labs',        weight:7.5,  sector:'Imagerie',       base:2.90},
+  'SPCE': {name:'Virgin Galactic',    weight:5.2,  sector:'Tourisme',       base:1.10},
+  'GSAT': {name:'Globalstar',         weight:4.8,  sector:'Communications', base:1.50},
+  'IRDM': {name:'Iridium',            weight:6.2,  sector:'Communications', base:32.00},
+  'LLAP': {name:'Terran Orbital',     weight:3.5,  sector:'Satellites',     base:0.90},
+  'BKSY': {name:'BlackSky',           weight:3.2,  sector:'Imagerie',       base:1.30},
+  'SATL': {name:'Satellogic',         weight:2.8,  sector:'Imagerie',       base:1.20},
+  'ASTR': {name:'Astra Space',        weight:2.5,  sector:'Lanceurs',       base:0.60},
+  'MNTS': {name:'Momentus',           weight:1.8,  sector:'Logistique',     base:0.80}
+};
+
+/* =========================================================================
+   2. CHARGEMENT DES DONNÉES DEPUIS GITHUB
+   ========================================================================= */
+async function chargerDonnees() {
+  /* 1. Cache local (5 min) */
+  try {
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION_MS) {
+      console.log('📦 Cache local utilisé (' + Math.floor((Date.now() - cached.timestamp)/1000) + 's)');
+      STOCK_DATA = cached.stocks || {};
+      DATA_SOURCE = 'Yahoo Finance (cache)';
+      DATA_TIMESTAMP = cached.timestamp;
+      return;
+    }
+  } catch {}
+
+  /* 2. Fichier data/stocks.json (généré par GitHub Actions) */
+  try {
+    console.log('🌐 Chargement de ' + DATA_URL + '…');
+    const res = await fetch(DATA_URL + '?t=' + Date.now(), { cache: 'no-cache' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const json = await res.json();
+    STOCK_DATA = json.stocks || {};
+
+    if (Object.keys(STOCK_DATA).length === 0) {
+      throw new Error('Aucun symbole dans stocks.json');
+    }
+
+    DATA_SOURCE = json.source || 'Yahoo Finance (GitHub)';
+    DATA_TIMESTAMP = json.timestamp ? new Date(json.timestamp).getTime() : Date.now();
+
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      stocks: STOCK_DATA,
+      timestamp: Date.now()
+    }));
+
+    console.log(`✅ ${Object.keys(STOCK_DATA).length} symboles chargés depuis GitHub`);
+    return;
+  } catch (err) {
+    console.warn('⚠️ data/stocks.json indisponible :', err.message);
+  }
+
+  /* 3. Fallback : données simulées */
+  STOCK_DATA = {};
+  DATA_SOURCE = 'Données simulées (fallback)';
+  DATA_TIMESTAMP = Date.now();
+  console.warn('⚠️ Utilisation des données simulées');
+}
+
+/* =========================================================================
+   3. ACCÈS AUX DONNÉES
+   ========================================================================= */
+function getStockData(symbol, days) {
+  const stock = STOCK_DATA[symbol];
+
+  if (stock && stock.history && stock.history.length > 0) {
+    const hist = stock.history.slice(-days);
+    return {
+      symbol: stock.symbol || symbol,
+      name: stock.name || symbol,
+      currency: stock.currency || 'USD',
+      price: stock.price || hist[hist.length-1]?.close || 0,
+      previousClose: stock.previousClose || hist[hist.length-2]?.close || 0,
+      dayHigh: stock.dayHigh || 0,
+      dayLow: stock.dayLow || 0,
+      history: hist
+    };
+  }
+
+  return generateFallbackData(symbol, days);
+}
+
+/* Générateur de secours (données simulées déterministes) */
+function generateFallbackData(symbol, days) {
+  const info = SPACE_ETFS[symbol] || SPCX_HOLDINGS[symbol];
+  const basePrice = info?.base || 10;
+  const volatility = symbol === 'SPCX' ? 0.22 : 0.18;
+
+  let seed = 0;
+  for (let i = 0; i < symbol.length; i++) seed += symbol.charCodeAt(i) * (i + 1);
+  const rand = () => {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
+  };
+
+  const data = [];
+  let price = basePrice;
+  const today = new Date();
+  for (let i = days; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const drift = (rand() - 0.5) * 0.02;
+    const shock = (rand() - 0.5) * volatility * 0.15;
+    price = Math.max(0.5, price * (1 + drift + shock));
+    data.push({
+      date: d.toISOString().slice(0, 10),
+      close: price,
+      volume: Math.round(100000 + rand() * 400000)
+    });
+  }
+
+  return {
+    symbol,
+    name: info?.name || symbol,
+    currency: 'USD',
+    price: data[data.length-1].close,
+    previousClose: data[data.length-2]?.close || data[data.length-1].close,
+    dayHigh: 0,
+    dayLow: 0,
+    history: data
+  };
+}
+
+/* =========================================================================
+   4. ÉTAT
+   ========================================================================= */
+const STORAGE_PORTFOLIO = 'spcx_portfolio_v1';
+const STORAGE_ALERTS = 'spcx_alerts_v1';
+
+const state = {
+  menu: '📈 SPCX Dashboard',
+  symbol: 'SPCX',
+  period: '1mo',
+  compare: ['SPCX','UFO','ARKX'],
+  portfolio: [],
+  alerts: [],
+  predictionDays: 7,
+  predictionDegree: 2
+};
+
+function chargerEtat(){
+  try { state.portfolio = JSON.parse(localStorage.getItem(STORAGE_PORTFOLIO) || '[]'); } catch {}
+  try { state.alerts = JSON.parse(localStorage.getItem(STORAGE_ALERTS) || '[]'); } catch {}
+}
+function sauverPortfolio(){ localStorage.setItem(STORAGE_PORTFOLIO, JSON.stringify(state.portfolio)); }
+function sauverAlerts(){ localStorage.setItem(STORAGE_ALERTS, JSON.stringify(state.alerts)); }
+
+/* =========================================================================
+   5. UTILITAIRES
+   ========================================================================= */
+function formatCurrency(v){ return '$' + Number(v).toFixed(2); }
+function formatLargeNumber(v){
+  if (v >= 1e9) return '$' + (v/1e9).toFixed(1) + 'B';
+  if (v >= 1e6) return '$' + (v/1e6).toFixed(1) + 'M';
+  return '$' + Math.round(v).toLocaleString('fr-FR');
+}
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function periodToDays(p){
+  return {'1d':1,'5d':5,'1mo':30,'3mo':90,'6mo':180,'1y':365}[p] || 30;
+}
+
+function calcETFScore(symbol, hist){
+  let score = 50;
+  const aum = SPACE_ETFS[symbol]?.aum || 0;
+  if (aum > 1e9) score += 20;
+  else if (aum > 500e6) score += 15;
+  else if (aum > 100e6) score += 10;
+
+  if (hist && hist.length > 20){
+    const closes = hist.map(h => h.close);
+    const ma20 = closes.slice(-20).reduce((a,b)=>a+b,0) / 20;
+    if (closes[closes.length-1] > ma20) score += 10;
+
+    const perf = (closes[closes.length-1] / closes[closes.length-21] - 1) * 100;
+    if (perf > 5) score += 10;
+    else if (perf > 0) score += 5;
+    else if (perf < -10) score -= 10;
+  }
+
+  const er = SPACE_ETFS[symbol]?.expense_ratio || 1.0;
+  if (er < 0.4) score += 10;
+  else if (er < 0.6) score += 5;
+  else if (er > 0.8) score -= 10;
+
+  const holdings = SPACE_ETFS[symbol]?.holdings || 0;
+  if (holdings > 40) score += 10;
+  else if (holdings > 25) score += 5;
+
+  return Math.max(0, Math.min(100, score));
+}
+
+function scoreGrade(score){
+  if (score >= 75) return {text:'EXCELLENT', cls:'score-excellent', icon:'🌟'};
+  if (score >= 60) return {text:'TRÈS BON',  cls:'score-good',      icon:'📈'};
+  if (score >= 45) return {text:'BON',       cls:'score-average',   icon:'✅'};
+  return              {text:'FAIBLE',     cls:'score-poor',      icon:'⚠️'};
+}
+
+/* Régression polynomiale (moindres carrés) */
+function polyFit(x, y, degree){
+  const n = x.length;
+  const X = [];
+  for (let i = 0; i < n; i++){
+    const row = [];
+    for (let j = 0; j <= degree; j++) row.push(Math.pow(x[i], j));
+    X.push(row);
+  }
+  const Xt = X[0].map((_, c) => X.map(r => r[c]));
+  const XtX = Xt.map(r1 => X[0].map((_, j) => r1.reduce((s, v, k) => s + v * X[k][j], 0)));
+  const Xty = Xt.map(r => r.reduce((s, v, k) => s + v * y[k], 0));
+  const m = degree + 1;
+  const A = XtX.map((r, i) => [...r, Xty[i]]);
+  for (let i = 0; i < m; i++){
+    let maxRow = i;
+    for (let k = i+1; k < m; k++) if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) maxRow = k;
+    [A[i], A[maxRow]] = [A[maxRow], A[i]];
+    for (let k = i+1; k < m; k++){
+      const f = A[k][i] / A[i][i];
+      for (let j = i; j <= m; j++) A[k][j] -= f * A[i][j];
+    }
+  }
+  const coef = new Array(m).fill(0);
+  for (let i = m-1; i >= 0; i--){
+    let s = A[i][m];
+    for (let j = i+1; j < m; j++) s -= A[i][j] * coef[j];
+    coef[i] = s / A[i][i];
+  }
+  return coef;
+}
+function polyPredict(coef, x){
+  return coef.reduce((s, c, i) => s + c * Math.pow(x, i), 0);
+}
+
+/* =========================================================================
+   6. HORLOGE FUSEAUX
+   ========================================================================= */
+function updateClocks(){
+  const now = new Date();
+  const paris = now.toLocaleTimeString('fr-FR', { timeZone:'Europe/Paris', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  const ny = now.toLocaleTimeString('en-US', { timeZone:'America/New_York', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  const elP = document.getElementById('clockParis');
+  const elN = document.getElementById('clockNY');
+  if (elP) elP.textContent = paris;
+  if (elN) elN.textContent = ny;
+}
+setInterval(updateClocks, 1000);
+
+/* =========================================================================
+   7. SIDEBAR
+   ========================================================================= */
+function renderSidebar(){
+  const sb = document.getElementById('sidebar');
+  const menus = [
+    {id:'📈 SPCX Dashboard',  label:'📈 SPCX Dashboard'},
+    {id:'🏆 Comparatif ETF',  label:'🏆 Comparatif ETF'},
+    {id:'📊 Holdings SPCX',   label:'📊 Holdings SPCX'},
+    {id:'💰 Portefeuille',    label:'💰 Portefeuille'},
+    {id:'🔔 Alertes prix',    label:'🔔 Alertes prix'},
+    {id:'🤖 Prédictions',     label:'🤖 Prédictions'}
+  ];
+
+  const isRealData = Object.keys(STOCK_DATA).length > 0;
+  const sourceDot = isRealData ? '#22c55e' : '#f59e0b';
+  const sourceLabel = isRealData ? 'Yahoo Finance (GitHub)' : 'Données simulées';
+
+  const ageMs = DATA_TIMESTAMP ? Date.now() - DATA_TIMESTAMP : null;
+  const ageLabel = ageMs === null ? '—'
+    : ageMs < 60000 ? 'à l\'instant'
+    : ageMs < 3600000 ? 'il y a ' + Math.floor(ageMs/60000) + ' min'
+    : 'il y a ' + Math.floor(ageMs/3600000) + ' h';
+
+  sb.innerHTML = `
+    <h2>🚀 SPCX Tracker</h2>
+
+    <h3>📡 Source des données</h3>
+    <div class="timezone-badge">
+      <span class="dot" style="background:${sourceDot};box-shadow:0 0 6px ${sourceDot};"></span>
+      <strong style="color:#fff;">${esc(sourceLabel)}</strong><br>
+      <span style="font-size:.72rem;color:#94a3b8;">Mise à jour : ${esc(ageLabel)}</span><br>
+      <span style="font-size:.72rem;color:#94a3b8;">Symboles : ${Object.keys(STOCK_DATA).length}</span>
+    </div>
+    <button class="btn" id="refreshDataBtn">🔄 Actualiser les cours</button>
+
+    <h3>🕐 Fuseaux horaires</h3>
+    <div class="timezone-badge">
+      🇫🇷 Paris : <span class="clock" id="clockParis">--:--:--</span><br>
+      🇺🇸 New York : <span class="clock" id="clockNY">--:--:--</span>
+    </div>
+
+    <h3>📊 Navigation</h3>
+    <div class="nav">
+      ${menus.map(m => `<button class="nav-btn ${state.menu===m.id?'active':''}" data-menu="${esc(m.id)}">${esc(m.label)}</button>`).join('')}
+    </div>
+
+    <h3>⚙️ Paramètres</h3>
+    <div class="select-wrap">
+      <label>ETF principal</label>
+      <select id="symbolSelect">
+        ${Object.keys(SPACE_ETFS).map(s => `<option value="${s}" ${state.symbol===s?'selected':''}>${s} — ${esc(SPACE_ETFS[s].name)}</option>`).join('')}
+      </select>
+      <label>Période</label>
+      <select id="periodSelect">
+        <option value="1mo" ${state.period==='1mo'?'selected':''}>1 mois</option>
+        <option value="3mo" ${state.period==='3mo'?'selected':''}>3 mois</option>
+        <option value="6mo" ${state.period==='6mo'?'selected':''}>6 mois</option>
+        <option value="1y"  ${state.period==='1y' ?'selected':''}>1 an</option>
+      </select>
+    </div>
+
+    <h3>📌 SPCX</h3>
+    <div class="resume">
+      <strong>Fonds</strong>
+      <p>AUM : ${formatLargeNumber(SPCX_INFO.aum)}</p>
+      <p>Frais : ${SPCX_INFO.expense_ratio}%</p>
+      <p>Holdings : ${SPACE_ETFS.SPCX.holdings}</p>
+    </div>
+
+    <div style="margin-top:14px;font-size:.7rem;color:#94a3b8;text-align:center;">
+      Données : Yahoo Finance · MAJ : GitHub Actions
+    </div>
+  `;
+
+  sb.querySelector('#symbolSelect').onchange = e => { state.symbol = e.target.value; render(); };
+  sb.querySelector('#periodSelect').onchange = e => { state.period = e.target.value; render(); };
+  sb.querySelectorAll('.nav-btn').forEach(b => {
+    b.onclick = () => { state.menu = b.dataset.menu; render(); window.scrollTo({top:0, behavior:'smooth'}); };
+  });
+  sb.querySelector('#refreshDataBtn').onclick = async () => {
+    const btn = sb.querySelector('#refreshDataBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Actualisation…';
+    localStorage.removeItem(CACHE_KEY);
+    await chargerDonnees();
+    render();
+    btn.disabled = false;
+    btn.textContent = '🔄 Actualiser les cours';
+  };
+
+  updateClocks();
+}
+
+/* =========================================================================
+   8. MAIN
+   ========================================================================= */
+function renderMain(){
+  const m = document.getElementById('mainContent');
+  let html = `
+    <h1 class="main-header">🚀 SPCX & Space ETF Tracker</h1>
+    <p class="sub-header">
+      <strong>Suivi des ETF spatiaux et actions NewSpace</strong><br>
+      SPCX · UFO · ARKX · ROKT · ITA · PPA — Données <strong>Yahoo Finance</strong> via GitHub Actions
+    </p>
+  `;
+
+  if (state.menu === '📈 SPCX Dashboard')      html += renderSPCXDashboard();
+  else if (state.menu === '🏆 Comparatif ETF') html += renderComparatif();
+  else if (state.menu === '📊 Holdings SPCX')  html += renderHoldings();
+  else if (state.menu === '💰 Portefeuille')   html += renderPortfolio();
+  else if (state.menu === '🔔 Alertes prix')   html += renderAlerts();
+  else if (state.menu === '🤖 Prédictions')    html += renderPredictions();
+
+  html += `
+    <div class="footer">
+      <strong>SPCX & SPACE ETF TRACKER</strong> · Dashboard HTML/JS/CSS · Thème 🇫🇷 Bleu Blanc Rouge<br>
+      Données : Yahoo Finance mises à jour automatiquement par GitHub Actions<br>
+      SPCX = SPAC & NewSpace ETF (ProcureAM) · Holdings : Rocket Lab, AST SpaceMobile, Planet Labs, Virgin Galactic…
+    </div>
+  `;
+
+  m.innerHTML = html;
+  attachMainListeners();
+  setTimeout(renderCharts, 0);
+}
+
+function attachMainListeners(){
+  const m = document.getElementById('mainContent');
+  const multi = m.querySelector('#compareMulti');
+  if (multi){
+    multi.onchange = () => {
+      state.compare = Array.from(multi.selectedOptions).map(o => o.value);
+      render();
+    };
+  }
+  const addBtn = m.querySelector('#addPositionBtn');
+  if (addBtn){
+    addBtn.onclick = () => {
+      const type = m.querySelector('#posType').value;
+      const sym = type === 'ETF' ? m.querySelector('#posETF').value : m.querySelector('#posStock').value;
+      const shares = parseInt(m.querySelector('#posShares').value) || 0;
+      const price = parseFloat(m.querySelector('#posPrice').value) || 0;
+      if (shares > 0 && price > 0){
+        state.portfolio.push({symbol:sym, shares, buy_price:price, date:new Date().toISOString().slice(0,10)});
+        sauverPortfolio();
+        render();
+      }
+    };
+  }
+  const clearBtn = m.querySelector('#clearPortfolioBtn');
+  if (clearBtn){
+    clearBtn.onclick = () => {
+      if (confirm('Vider tout le portefeuille ?')){
+        state.portfolio = [];
+        sauverPortfolio();
+        render();
+      }
+    };
+  }
+  m.querySelectorAll('[data-del-pos]').forEach(b => {
+    b.onclick = () => {
+      state.portfolio.splice(parseInt(b.dataset.delPos), 1);
+      sauverPortfolio();
+      render();
+    };
+  });
+  const alertBtn = m.querySelector('#addAlertBtn');
+  if (alertBtn){
+    alertBtn.onclick = () => {
+      const sym = m.querySelector('#alertSymbol').value;
+      const price = parseFloat(m.querySelector('#alertPrice').value) || 0;
+      const cond = m.querySelector('#alertCond').value;
+      if (price > 0){
+        state.alerts.push({symbol:sym, price, condition:cond, created:new Date().toISOString()});
+        sauverAlerts();
+        render();
+      }
+    };
+  }
+  m.querySelectorAll('[data-del-alert]').forEach(b => {
+    b.onclick = () => {
+      state.alerts.splice(parseInt(b.dataset.delAlert), 1);
+      sauverAlerts();
+      render();
+    };
+  });
+  const predBtn = m.querySelector('#predictionRefresh');
+  if (predBtn){
+    predBtn.onclick = () => {
+      state.predictionDays = parseInt(m.querySelector('#predDays').value);
+      state.predictionDegree = parseInt(m.querySelector('#predDegree').value);
+      render();
+    };
+  }
+  const typeSelect = m.querySelector('#posType');
+  if (typeSelect){
+    typeSelect.onchange = () => {
+      const v = typeSelect.value;
+      m.querySelector('#posETFWrap').style.display = v === 'ETF' ? '' : 'none';
+      m.querySelector('#posStockWrap').style.display = v === 'Action' ? '' : 'none';
+    };
+  }
+}
+
+/* =========================================================================
+   9. VUE : SPCX DASHBOARD
+   ========================================================================= */
+function renderSPCXDashboard(){
+  const days = periodToDays(state.period);
+  const stock = getStockData(state.symbol, days);
+  const hist = stock.history;
+  const info = SPACE_ETFS[state.symbol] || {name: stock.name, aum: 0, expense_ratio: 0, holdings: 0};
+
+  const current = stock.price || hist[hist.length-1].close;
+  const prev = stock.previousClose || hist[hist.length-2]?.close || current;
+  const change = current - prev;
+  const changePct = prev > 0 ? (change / prev * 100) : 0;
+  const perf = hist[0] ? ((current / hist[0].close - 1) * 100) : 0;
+
+  const volatility = (() => {
+    if (hist.length < 2) return 0;
+    const rets = [];
+    for (let i = 1; i < hist.length; i++) rets.push(hist[i].close / hist[i-1].close - 1);
+    const mean = rets.reduce((a,b)=>a+b,0) / rets.length;
+    const variance = rets.reduce((s,r) => s + Math.pow(r - mean, 2), 0) / rets.length;
+    return Math.sqrt(variance * 252) * 100;
+  })();
+  const avgVolume = hist.reduce((s,h) => s + (h.volume || 0), 0) / hist.length;
+
+  window.__hist = hist;
+  window.__currentSymbol = state.symbol;
+
+  return `
+    <h3 class="section-header">📊 ${esc(state.symbol)} — ${esc(info.name || stock.name)}</h3>
+
+    <div class="spacex-card">
+      <b>🚀 ${esc(SPCX_INFO.name)}</b><br>
+      <div class="meta">
+        Émetteur : ${esc(SPCX_INFO.issuer)} · Frais : ${SPCX_INFO.expense_ratio}% · AUM : ${formatLargeNumber(SPCX_INFO.aum)}<br>
+        Inception : ${SPCX_INFO.inception}<br>
+        ${esc(SPCX_INFO.description)}
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card ${change >= 0 ? 'vert' : 'rouge'}">
+        <div class="label">💵 Prix ${esc(state.symbol)}</div>
+        <div class="value">${formatCurrency(current)}</div>
+        <div class="sub ${change >= 0 ? 'delta-up' : 'delta-down'}">
+          ${change >= 0 ? '+' : ''}${change.toFixed(3)} (${changePct >= 0 ? '+' : ''}${changePct.toFixed(2)}%)
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">📦 AUM</div>
+        <div class="value">${formatLargeNumber(info.aum || SPCX_INFO.aum)}</div>
+        <div class="sub">Actifs sous gestion</div>
+      </div>
+      <div class="kpi-card jaune">
+        <div class="label">💸 Frais</div>
+        <div class="value">${info.expense_ratio || SPCX_INFO.expense_ratio}%</div>
+        <div class="sub">Frais annuels</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">📊 Holdings</div>
+        <div class="value">${info.holdings || SPACE_ETFS.SPCX.holdings}</div>
+        <div class="sub">Lignes en portefeuille</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-box tall" style="grid-column:1/-1;">
+        <h3>📈 Évolution ${esc(state.symbol)} — ${state.period}</h3>
+        <div class="canvas-wrap"><canvas id="chartMain"></canvas></div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="label">📊 Volatilité annualisée</div>
+        <div class="value">${volatility.toFixed(2)}%</div>
+      </div>
+      <div class="kpi-card ${perf >= 0 ? 'vert' : 'rouge'}">
+        <div class="label">📈 Performance ${state.period}</div>
+        <div class="value">${perf >= 0 ? '+' : ''}${perf.toFixed(1)}%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">📉 Volume moyen</div>
+        <div class="value">${(avgVolume/1000).toFixed(0)}K</div>
+      </div>
+      <div class="kpi-card rouge">
+        <div class="label">🏆 Top holding</div>
+        <div class="value">RKLB</div>
+        <div class="sub">12.5% · Rocket Lab USA</div>
+      </div>
+    </div>
+
+    <h3 class="section-header">🏆 Top 5 Holdings SPCX</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Symbole</th><th>Société</th><th>Secteur</th><th>Poids</th><th>Prix</th></tr></thead>
+        <tbody>
+          ${Object.entries(SPCX_HOLDINGS).sort((a,b)=>b[1].weight-a[1].weight).slice(0,5).map(([sym, d]) => {
+            const s = getStockData(sym, 5);
+            const p = s.price || s.history[s.history.length-1].close;
+            return `<tr>
+              <td><strong>${esc(sym)}</strong></td>
+              <td>${esc(d.name)}</td>
+              <td><span class="badge">${esc(d.sector)}</span></td>
+              <td>${d.weight}%</td>
+              <td>${formatCurrency(p)}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="section-header">📊 Performance comparative</h3>
+    <div class="chart-box tall">
+      <h3>4 ETF majeurs — variation normalisée (%)</h3>
+      <div class="canvas-wrap"><canvas id="chartCompare"></canvas></div>
+    </div>
+  `;
+}
+
+/* =========================================================================
+   10. VUE : COMPARATIF ETF
+   ========================================================================= */
+function renderComparatif(){
+  const etfScores = Object.entries(SPACE_ETFS).map(([sym, data]) => {
+    const stock = getStockData(sym, 30);
+    const hist = stock.history;
+    const score = calcETFScore(sym, hist);
+    const grade = scoreGrade(score);
+    const price = stock.price || hist[hist.length-1].close;
+    return {sym, data, score, grade, price};
+  }).sort((a,b) => b.score - a.score);
+
+  return `
+    <h3 class="section-header">🏆 COMPARATIF DES ETF SPATIAUX</h3>
+
+    <div class="score-list">
+      ${etfScores.map(({sym, data, score, grade, price}) => `
+        <div class="score-card ${grade.cls}">
+          <div>
+            <div class="sym">${grade.icon} ${esc(sym)}</div>
+            <div class="name">${esc(data.name)}</div>
+          </div>
+          <div class="cell">${formatCurrency(price)}</div>
+          <div class="cell">${formatLargeNumber(data.aum)}</div>
+          <div class="cell">${data.expense_ratio}%</div>
+          <div class="cell">${data.holdings} lignes</div>
+          <div>
+            <div class="big-score">${score.toFixed(0)}</div>
+            <div class="grade">${grade.text}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <h3 class="section-header">📊 Détail comparatif</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ETF</th><th>Nom</th><th>Prix</th><th>AUM</th><th>Frais</th><th>Holdings</th><th>Score</th><th>Grade</th></tr></thead>
+        <tbody>
+          ${etfScores.map(({sym, data, score, grade, price}) => `
+            <tr>
+              <td><strong>${esc(sym)}</strong></td>
+              <td>${esc(data.name)}</td>
+              <td>${formatCurrency(price)}</td>
+              <td>${formatLargeNumber(data.aum)}</td>
+              <td>${data.expense_ratio}%</td>
+              <td>${data.holdings}</td>
+              <td><strong>${score.toFixed(1)}</strong></td>
+              <td><span class="badge">${grade.text}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="section-header">📈 Performance comparative</h3>
+    <div class="form-box" style="margin-bottom:20px;">
+      <h4>Sélectionner les ETF à comparer</h4>
+      <select id="compareMulti" multiple size="6" style="min-height:160px;">
+        ${Object.keys(SPACE_ETFS).map(s => `<option value="${s}" ${state.compare.includes(s)?'selected':''}>${s} — ${esc(SPACE_ETFS[s].name)}</option>`).join('')}
+      </select>
+    </div>
+
+    <div class="chart-box tall">
+      <h3>Performance normalisée sur 3 mois (%)</h3>
+      <div class="canvas-wrap"><canvas id="chartMulti"></canvas></div>
+    </div>
+  `;
+}
+
+/* =========================================================================
+   11. VUE : HOLDINGS SPCX
+   ========================================================================= */
+function renderHoldings(){
+  const top5Weight = Object.values(SPCX_HOLDINGS).sort((a,b)=>b.weight-a.weight).slice(0,5).reduce((s,d) => s + d.weight, 0);
+
+  const holdings = Object.entries(SPCX_HOLDINGS).map(([sym, d]) => {
+    const s = getStockData(sym, 5);
+    const price = s.price || s.history[s.history.length-1].close;
+    return {sym, ...d, price, value: (d.weight/100) * SPCX_INFO.aum};
+  }).sort((a,b) => b.weight - a.weight);
+
+  const sectorWeights = {};
+  Object.values(SPCX_HOLDINGS).forEach(d => {
+    sectorWeights[d.sector] = (sectorWeights[d.sector] || 0) + d.weight;
+  });
+
+  window.__holdings = holdings;
+  window.__sectorWeights = sectorWeights;
+
+  return `
+    <h3 class="section-header">📊 COMPOSITION DÉTAILLÉE DU SPCX</h3>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="label">📊 Holdings</div>
+        <div class="value">${Object.keys(SPCX_HOLDINGS).length}</div>
+        <div class="sub">Lignes en portefeuille</div>
+      </div>
+      <div class="kpi-card rouge">
+        <div class="label">🏆 Top 5 poids</div>
+        <div class="value">${top5Weight.toFixed(1)}%</div>
+        <div class="sub">Concentration</div>
+      </div>
+      <div class="kpi-card jaune">
+        <div class="label">💸 Frais</div>
+        <div class="value">${SPCX_INFO.expense_ratio}%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">📦 AUM</div>
+        <div class="value">${formatLargeNumber(SPCX_INFO.aum)}</div>
+      </div>
+    </div>
+
+    <h3 class="section-header">📋 Liste des holdings</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Symbole</th><th>Société</th><th>Secteur</th><th>Poids %</th><th>Prix</th><th>Valeur estimée</th></tr></thead>
+        <tbody>
+          ${holdings.map(h => `
+            <tr>
+              <td><strong>${esc(h.sym)}</strong></td>
+              <td>${esc(h.name)}</td>
+              <td><span class="badge">${esc(h.sector)}</span></td>
+              <td>${h.weight}%</td>
+              <td>${formatCurrency(h.price)}</td>
+              <td>${formatLargeNumber(h.value)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-box">
+        <h3>🥧 Répartition sectorielle</h3>
+        <div class="canvas-wrap"><canvas id="chartSector"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3>📊 Top 10 holdings</h3>
+        <div class="canvas-wrap"><canvas id="chartTop10"></canvas></div>
+      </div>
+    </div>
+  `;
+}
+
+/* =========================================================================
+   12. VUE : PORTEFEUILLE
+   ========================================================================= */
+function renderPortfolio(){
+  const positions = state.portfolio.map((pos, idx) => {
+    const s = getStockData(pos.symbol, 5);
+    const current = s.price || s.history[s.history.length-1].close;
+    const value = pos.shares * current;
+    const cost = pos.shares * pos.buy_price;
+    const profit = value - cost;
+    const profitPct = cost > 0 ? (profit / cost * 100) : 0;
+    return {...pos, current, value, cost, profit, profitPct, idx};
+  });
+
+  const totalValue = positions.reduce((s,p) => s + p.value, 0);
+  const totalCost = positions.reduce((s,p) => s + p.cost, 0);
+  const totalProfit = totalValue - totalCost;
+  const totalProfitPct = totalCost > 0 ? (totalProfit / totalCost * 100) : 0;
+
+  return `
+    <h3 class="section-header">💰 PORTEFEUILLE VIRTUEL</h3>
+
+    <div class="form-row">
+      <div class="form-box">
+        <h4>➕ Ajouter une position</h4>
+        <div class="form-field">
+          <label>Type</label>
+          <select id="posType">
+            <option value="ETF">ETF</option>
+            <option value="Action">Action</option>
+          </select>
+        </div>
+        <div class="form-field" id="posETFWrap">
+          <label>ETF</label>
+          <select id="posETF">
+            ${Object.keys(SPACE_ETFS).map(s => `<option value="${s}">${s} — ${esc(SPACE_ETFS[s].name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-field" id="posStockWrap" style="display:none;">
+          <label>Action</label>
+          <select id="posStock">
+            ${Object.keys(SPCX_HOLDINGS).map(s => `<option value="${s}">${s} — ${esc(SPCX_HOLDINGS[s].name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Quantité</label>
+          <input type="number" id="posShares" value="100" min="1" step="10">
+        </div>
+        <div class="form-field">
+          <label>Prix d'achat ($)</label>
+          <input type="number" id="posPrice" value="10.00" min="0.01" step="0.5">
+        </div>
+        <button class="btn" id="addPositionBtn">➕ Ajouter au portefeuille</button>
+      </div>
+
+      <div class="form-box">
+        <h4>📊 Statistiques</h4>
+        ${positions.length === 0 ? `
+          <div class="empty-msg">Aucune position</div>
+        ` : `
+          <div class="kpi-grid" style="grid-template-columns:1fr;margin:0;">
+            <div class="kpi-card">
+              <div class="label">💰 Valeur totale</div>
+              <div class="value">${formatCurrency(totalValue)}</div>
+            </div>
+            <div class="kpi-card rouge">
+              <div class="label">💸 Coût total</div>
+              <div class="value">${formatCurrency(totalCost)}</div>
+            </div>
+            <div class="kpi-card ${totalProfit >= 0 ? 'vert' : 'rouge'}">
+              <div class="label">📈 Profit total</div>
+              <div class="value">${formatCurrency(totalProfit)}</div>
+              <div class="sub ${totalProfit >= 0 ? 'delta-up' : 'delta-down'}">
+                ${totalProfitPct >= 0 ? '+' : ''}${totalProfitPct.toFixed(1)}%
+              </div>
+            </div>
+          </div>
+          <button class="btn rouge" id="clearPortfolioBtn" style="margin-top:14px;">🗑️ Vider le portefeuille</button>
+        `}
+      </div>
+    </div>
+
+    ${positions.length > 0 ? `
+      <h3 class="section-header">📋 Positions détaillées</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Symbole</th><th>Quantité</th><th>Prix achat</th><th>Prix actuel</th><th>Valeur</th><th>Profit</th><th>Profit %</th><th></th></tr></thead>
+          <tbody>
+            ${positions.map(p => `
+              <tr>
+                <td><strong>${esc(p.symbol)}</strong></td>
+                <td>${p.shares}</td>
+                <td>${formatCurrency(p.buy_price)}</td>
+                <td>${formatCurrency(p.current)}</td>
+                <td>${formatCurrency(p.value)}</td>
+                <td class="${p.profit >= 0 ? 'delta-up' : 'delta-down'}">${formatCurrency(p.profit)}</td>
+                <td class="${p.profit >= 0 ? 'delta-up' : 'delta-down'}">${p.profitPct >= 0 ? '+' : ''}${p.profitPct.toFixed(1)}%</td>
+                <td><button style="background:transparent;border:1px solid #ED2939;color:#ED2939;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:.75rem;font-weight:700;" data-del-pos="${p.idx}">✕</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    ` : ''}
+  `;
+}
+
+/* =========================================================================
+   13. VUE : ALERTES
+   ========================================================================= */
+function renderAlerts(){
+  const allSymbols = [...Object.keys(SPACE_ETFS), ...Object.keys(SPCX_HOLDINGS)];
+
+  return `
+    <h3 class="section-header">🔔 ALERTES DE PRIX</h3>
+
+    <div class="form-row">
+      <div class="form-box">
+        <h4>➕ Créer une alerte</h4>
+        <div class="form-field">
+          <label>Symbole</label>
+          <select id="alertSymbol">
+            ${allSymbols.map(s => `<option value="${s}">${s}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Prix cible ($)</label>
+          <input type="number" id="alertPrice" value="50.00" min="0.01" step="1">
+        </div>
+        <div class="form-field">
+          <label>Condition</label>
+          <select id="alertCond">
+            <option value="above">Au-dessus (≥)</option>
+            <option value="below">En-dessous (≤)</option>
+          </select>
+        </div>
+        <button class="btn" id="addAlertBtn">🔔 Créer l'alerte</button>
+      </div>
+
+      <div class="form-box">
+        <h4>📋 Alertes actives</h4>
+        ${state.alerts.length === 0 ? `
+          <div class="empty-msg">Aucune alerte</div>
+        ` : state.alerts.map((a, i) => {
+          const s = getStockData(a.symbol, 2);
+          const current = s.price || s.history[s.history.length-1].close;
+          const triggered = (a.condition === 'above' && current >= a.price) || (a.condition === 'below' && current <= a.price);
+          const statusIcon = triggered ? '🔔' : '⏳';
+          const statusText = triggered ? 'DÉCLENCHÉE' : 'En attente';
+          const statusColor = triggered ? '#22c55e' : '#f59e0b';
+          return `
+            <div class="alert-item" style="border-left-color:${statusColor};">
+              <div>
+                <strong>${esc(a.symbol)}</strong>
+                ${a.condition === 'above' ? '≥' : '≤'} ${formatCurrency(a.price)}
+                <br>
+                <small style="color:${statusColor};font-weight:800;font-size:.72rem;">${statusIcon} ${statusText}</small>
+                <small style="color:#94a3b8;font-size:.7rem;"> · Prix actuel : ${formatCurrency(current)}</small>
+              </div>
+              <button data-del-alert="${i}">✕</button>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* =========================================================================
+   14. VUE : PRÉDICTIONS
+   ========================================================================= */
+function renderPredictions(){
+  const days = 90;
+  const stock = getStockData(state.symbol, days);
+  const hist = stock.history;
+
+  if (hist.length < 10) {
+    return `
+      <h3 class="section-header">🤖 PRÉDICTIONS ML — ${esc(state.symbol)}</h3>
+      <div class="empty-msg">Pas assez de données historiques (minimum 10 jours requis)</div>
+    `;
+  }
+
+  const X = hist.map((_, i) => i);
+  const Y = hist.map(h => h.close);
+
+  const coef = polyFit(X, Y, state.predictionDegree);
+  const predDays = state.predictionDays;
+  const lastX = X.length - 1;
+
+  const predictions = [];
+  for (let i = 1; i <= predDays; i++){
+    predictions.push({x: lastX + i, y: polyPredict(coef, lastX + i)});
+  }
+
+  const current = Y[Y.length-1];
+  const lastPred = predictions[predictions.length-1].y;
+  const variation = ((lastPred / current - 1) * 100);
+
+  let trend, trendCls;
+  if (variation > 3){ trend = '📈 TENDANCE HAUSSIÈRE'; trendCls = 'pred-up'; }
+  else if (variation < -3){ trend = '📉 TENDANCE BAISSIÈRE'; trendCls = 'pred-down'; }
+  else { trend = '➡️ TENDANCE NEUTRE'; trendCls = 'pred-neutral'; }
+
+  window.__predictData = {hist, predictions, current};
+
+  return `
+    <h3 class="section-header">🤖 PRÉDICTIONS ML — ${esc(state.symbol)}</h3>
+
+    <div class="form-box" style="margin-bottom:20px;">
+      <h4>⚙️ Paramètres du modèle</h4>
+      <div class="form-row" style="margin:0;">
+        <div class="form-field">
+          <label>Jours à prédire</label>
+          <input type="number" id="predDays" value="${state.predictionDays}" min="1" max="30" step="1">
+        </div>
+        <div class="form-field">
+          <label>Degré du polynôme (1-4)</label>
+          <input type="number" id="predDegree" value="${state.predictionDegree}" min="1" max="4" step="1">
+        </div>
+      </div>
+      <button class="btn" id="predictionRefresh" style="margin-top:12px;">🔄 Recalculer</button>
+    </div>
+
+    <div class="pred-tag ${trendCls}">${trend} — ${variation >= 0 ? '+' : ''}${variation.toFixed(1)}% à ${predDays} jours</div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="label">💵 Prix actuel</div>
+        <div class="value">${formatCurrency(current)}</div>
+      </div>
+      <div class="kpi-card ${variation >= 0 ? 'vert' : 'rouge'}">
+        <div class="label">🎯 Prix prédit (J+${predDays})</div>
+        <div class="value">${formatCurrency(lastPred)}</div>
+        <div class="sub ${variation >= 0 ? 'delta-up' : 'delta-down'}">${variation >= 0 ? '+' : ''}${variation.toFixed(2)}%</div>
+      </div>
+      <div class="kpi-card jaune">
+        <div class="label">📐 Modèle</div>
+        <div class="value">Poly ${state.predictionDegree}</div>
+        <div class="sub">Moindres carrés</div>
+      </div>
+      <div class="kpi-card rouge">
+        <div class="label">📊 Données</div>
+        <div class="value">${hist.length} j</div>
+        <div class="sub">Historique utilisé</div>
+      </div>
+    </div>
+
+    <div class="chart-box tall">
+      <h3>📈 Historique + Prédiction ${predDays} jours</h3>
+      <div class="canvas-wrap"><canvas id="chartPred"></canvas></div>
+    </div>
+
+    <h3 class="section-header">📋 Détail des prédictions</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Jour</th><th>Date</th><th>Prix prédit</th><th>Variation vs actuel</th></tr></thead>
+        <tbody>
+          ${predictions.map((p, i) => {
+            const varPct = ((p.y / current - 1) * 100);
+            const d = new Date();
+            d.setDate(d.getDate() + i + 1);
+            return `<tr>
+              <td>J+${i+1}</td>
+              <td>${d.toISOString().slice(0, 10)}</td>
+              <td><strong>${formatCurrency(p.y)}</strong></td>
+              <td class="${varPct >= 0 ? 'delta-up' : 'delta-down'}">${varPct >= 0 ? '+' : ''}${varPct.toFixed(2)}%</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+/* =========================================================================
+   15. GRAPHIQUES
+   ========================================================================= */
+let charts = {};
+function destroyCharts(){
+  Object.values(charts).forEach(c => { try { c.destroy(); } catch(e){} });
+  charts = {};
+}
+
+function renderCharts(){
+  destroyCharts();
+  if (typeof Chart === 'undefined') return;
+  const gridColor = 'rgba(219,230,243,.6)';
+  const textColor = '#475569';
+  const font = { family: '"Segoe UI", system-ui, sans-serif', size: 11 };
+
+  /* Graphique principal */
+  const cMain = document.getElementById('chartMain');
+  if (cMain && window.__hist){
+    const hist = window.__hist;
+    const labels = hist.map(h => h.date);
+    const closes = hist.map(h => h.close);
+    const ma20 = closes.map((_, i) => {
+      if (i < 19) return null;
+      const slice = closes.slice(i-19, i+1);
+      return slice.reduce((a,b) => a+b, 0) / 20;
+    });
+
+    charts.main = new Chart(cMain, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: window.__currentSymbol || state.symbol,
+            data: closes,
+            borderColor: '#002395',
+            backgroundColor: 'rgba(0,35,149,.08)',
+            borderWidth: 2.5,
+            fill: true,
+            pointRadius: 0,
+            tension: 0.25
+          },
+          {
+            label: 'MA20',
+            data: ma20,
+            borderColor: '#ED2939',
+            borderWidth: 1.5,
+            borderDash: [6, 4],
+            fill: false,
+            pointRadius: 0,
+            tension: 0.25
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: textColor, font: { ...font, size: 12 } } },
+          tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ' : ' + formatCurrency(ctx.parsed.y) } }
+        },
+        scales: {
+          x: { ticks: { color: textColor, font, maxTicksLimit: 10 }, grid: { display: false } },
+          y: { ticks: { color: textColor, font, callback: v => '$' + v.toFixed(2) }, grid: { color: gridColor } }
+        }
+      }
+    });
+  }
+
+  /* Comparaison */
+  const cComp = document.getElementById('chartCompare');
+  if (cComp){
+    const etfs = ['SPCX', 'UFO', 'ARKX', 'ITA'];
+    const colors = ['#002395', '#ED2939', '#22c55e', '#f59e0b'];
+    const datasets = etfs.map((etf, i) => {
+      const stock = getStockData(etf, periodToDays(state.period));
+      const hist = stock.history;
+      const base = hist[0].close;
+      return {
+        label: etf,
+        data: hist.map(h => ((h.close / base - 1) * 100)),
+        borderColor: colors[i],
+        backgroundColor: colors[i] + '20',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.25
+      };
+    });
+    charts.compare = new Chart(cComp, {
+      type: 'line',
+      data: { labels: datasets[0].data.map((_, i) => i), datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: textColor, font: { ...font, size: 12 } } },
+          tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ' : ' + ctx.parsed.y.toFixed(2) + '%' } }
+        },
+        scales: {
+          x: { ticks: { display: false }, grid: { display: false } },
+          y: { ticks: { color: textColor, font, callback: v => v + '%' }, grid: { color: gridColor } }
+        }
+      }
+    });
+  }
+
+  /* Multi-compare */
+  const cMulti = document.getElementById('chartMulti');
+  if (cMulti){
+    const colors = ['#002395', '#1D4ED8', '#3B82F6', '#ED2939', '#f59e0b', '#22c55e'];
+    const datasets = state.compare.map((etf, i) => {
+      const stock = getStockData(etf, 90);
+      const hist = stock.history;
+      const base = hist[0].close;
+      return {
+        label: etf,
+        data: hist.map(h => (h.close / base - 1) * 100),
+        borderColor: colors[i % colors.length],
+        backgroundColor: colors[i % colors.length] + '20',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.25
+      };
+    });
+    charts.multi = new Chart(cMulti, {
+      type: 'line',
+      data: { labels: datasets[0]?.data.map((_, i) => i) || [], datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: textColor, font: { ...font, size: 12 } } },
+          tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ' : ' + ctx.parsed.y.toFixed(2) + '%' } }
+        },
+        scales: {
+          x: { ticks: { display: false }, grid: { display: false } },
+          y: { ticks: { color: textColor, font, callback: v => v + '%' }, grid: { color: gridColor } }
+        }
+      }
+    });
+  }
+
+  /* Secteurs */
+  const cSector = document.getElementById('chartSector');
+  if (cSector && window.__sectorWeights){
+    const labels = Object.keys(window.__sectorWeights);
+    const values = Object.values(window.__sectorWeights);
+    const palette = ['#002395', '#1D4ED8', '#3B82F6', '#ED2939', '#f59e0b', '#22c55e', '#a855f7'];
+    charts.sector = new Chart(cSector, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{ data: values, backgroundColor: labels.map((_, i) => palette[i % palette.length]), borderWidth: 3, borderColor: '#fff' }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '55%',
+        plugins: {
+          legend: { position: 'right', labels: { color: textColor, font: { ...font, size: 11 }, padding: 10, boxWidth: 14 } }
+        }
+      }
+    });
+  }
+
+  /* Top 10 holdings */
+  const cTop10 = document.getElementById('chartTop10');
+  if (cTop10 && window.__holdings){
+    const top10 = window.__holdings.slice(0, 10);
+    charts.top10 = new Chart(cTop10, {
+      type: 'bar',
+      data: {
+        labels: top10.map(h => h.sym),
+        datasets: [{
+          label: 'Poids (%)',
+          data: top10.map(h => h.weight),
+          backgroundColor: top10.map((_, i) => i === 0 ? '#ED2939' : i < 3 ? '#1D4ED8' : '#3B82F6'),
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.y + '%' } }
+        },
+        scales: {
+          x: { ticks: { color: textColor, font }, grid: { display: false } },
+          y: { ticks: { color: textColor, font, callback: v => v + '%' }, grid: { color: gridColor } }
+        }
+      }
+    });
+  }
+
+  /* Prédictions */
+  const cPred = document.getElementById('chartPred');
+  if (cPred && window.__predictData){
+    const { hist, predictions } = window.__predictData;
+    const histLabels = hist.map(h => h.date);
+    const predLabels = predictions.map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() + i + 1);
+      return d.toISOString().slice(0, 10);
+    });
+    const allLabels = [...histLabels, ...predLabels];
+    const histData = [...hist.map(h => h.close), ...new Array(predictions.length).fill(null)];
+    const predData = [...new Array(hist.length - 1).fill(null), hist[hist.length-1].close, ...predictions.map(p => p.y)];
+
+    charts.pred = new Chart(cPred, {
+      type: 'line',
+      data: {
+        labels: allLabels,
+        datasets: [
+          { label: 'Historique', data: histData, borderColor: '#002395', backgroundColor: 'rgba(0,35,149,.08)', borderWidth: 2, fill: true, pointRadius: 0, tension: 0.25 },
+          { label: 'Prédiction', data: predData, borderColor: '#ED2939', borderWidth: 2.5, borderDash: [6, 4], fill: false, pointRadius: 0, tension: 0.25 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: textColor, font: { ...font, size: 12 } } },
+          tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ' : ' + (ctx.parsed.y ? formatCurrency(ctx.parsed.y) : '—') } }
+        },
+        scales: {
+          x: { ticks: { color: textColor, font, maxTicksLimit: 10 }, grid: { display: false } },
+          y: { ticks: { color: textColor, font, callback: v => '$' + v.toFixed(2) }, grid: { color: gridColor } }
+        }
+      }
+    });
+  }
+}
+
+/* =========================================================================
+   16. RENDU GLOBAL + DÉMARRAGE
+   ========================================================================= */
+function render(){
+  renderSidebar();
+  renderMain();
+}
+
+async function demarrer(){
+  /* Afficher le loader */
+  document.getElementById('sidebar').innerHTML = '';
+  document.getElementById('mainContent').innerHTML = `
+    <h1 class="main-header">🚀 SPCX & Space ETF Tracker</h1>
+    <div class="loading-msg">🔄 Chargement des cours depuis GitHub Actions…</div>
+  `;
+
+  /* Charger l'état local + les données */
+  chargerEtat();
+  await chargerDonnees();
+
+  /* Rendu final */
+  render();
+}
+
+document.addEventListener('DOMContentLoaded', demarrer);
+</script>
+</body>
+</html>
