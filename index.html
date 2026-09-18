@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>🚀 SPCX & Space ETF Tracker</title>
+<title>🚀 SPCX & Space ETF Tracker — US · France · Europe</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root{
@@ -164,6 +164,9 @@ tbody tr:hover{background:var(--bleu-tres-pale);}
 tbody td{padding:10px 14px;color:#334155;font-variant-numeric:tabular-nums;}
 tbody td strong{color:var(--bleu);font-weight:700;}
 .badge{display:inline-block;padding:3px 9px;border-radius:12px;background:var(--bleu-pale);color:var(--bleu);font-size:.7rem;font-weight:700;}
+.badge-eu{background:#dbeafe;color:#1e40af;}
+.badge-fr{background:#fee2e2;color:#991b1b;}
+.badge-pea{background:#dcfce7;color:#166534;}
 
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
 @media (max-width:700px){.form-row{grid-template-columns:1fr;}}
@@ -206,6 +209,24 @@ input:focus,select:focus{border-color:var(--bleu-moyen);box-shadow:0 0 0 3px rgb
 .pred-down{background:#fee2e2;color:#991b1b;}
 .pred-neutral{background:#dbeafe;color:#1e40af;}
 
+/* Bandeau comparaison US vs EU */
+.compare-banner{
+  background:linear-gradient(135deg,#002395 0%,#002395 33%,#ffffff 33%,#ffffff 66%,#ED2939 66%,#ED2939 100%);
+  border-radius:14px;padding:2px;margin-bottom:20px;
+}
+.compare-banner-inner{
+  background:#fff;border-radius:12px;padding:20px 24px;
+}
+.compare-banner h3{margin:0 0 12px;color:var(--bleu);font-size:1rem;font-weight:800;}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media (max-width:800px){.compare-grid{grid-template-columns:1fr;}}
+.compare-col h4{margin:0 0 10px;font-size:.85rem;font-weight:800;display:flex;align-items:center;gap:6px;}
+.compare-col.us h4{color:#002395;}
+.compare-col.eu h4{color:#ED2939;}
+.compare-col ul{list-style:none;padding:0;margin:0;font-size:.82rem;}
+.compare-col li{padding:6px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;}
+.compare-col li:last-child{border-bottom:none;}
+
 .footer{margin-top:50px;text-align:center;color:var(--muted);font-size:.78rem;line-height:1.8;border-top:2px solid transparent;border-image:linear-gradient(90deg,var(--bleu),#fff,var(--rouge)) 1;padding-top:20px;}
 .footer strong{color:var(--bleu);}
 
@@ -234,15 +255,15 @@ input:focus,select:focus{border-color:var(--bleu-moyen);box-shadow:0 0 0 3px rgb
    0. CONFIGURATION GITHUB ACTIONS
    ========================================================================= */
 const DATA_URL = 'data/stocks.json';
-const CACHE_KEY = 'spcx_stocks_v2';
-const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+const CACHE_KEY = 'spcx_stocks_v3';
+const CACHE_DURATION_MS = 5 * 60 * 1000;
 
-let STOCK_DATA = {};      // Chargé depuis data/stocks.json
+let STOCK_DATA = {};
 let DATA_SOURCE = 'Initialisation…';
 let DATA_TIMESTAMP = null;
 
 /* =========================================================================
-   1. DONNÉES DE RÉFÉRENCE
+   1. DONNÉES DE RÉFÉRENCE — US
    ========================================================================= */
 const SPACE_ETFS = {
   'SPCX': {name:'SPAC & NewSpace ETF',           aum:125e6, expense_ratio:0.75, holdings:25, base:12.50},
@@ -278,14 +299,31 @@ const SPCX_HOLDINGS = {
 };
 
 /* =========================================================================
-   2. CHARGEMENT DES DONNÉES DEPUIS GITHUB
+   2. DONNÉES DE RÉFÉRENCE — 🇫🇷 FRANCE & 🇪🇺 EUROPE
+   ========================================================================= */
+const FRENCH_STOCKS = {
+  'AIR.PA': {name:'Airbus SE',                 sector:'Aéronautique',     base:198.00, currency:'EUR', flag:'🇫🇷'},
+  'HO.PA':  {name:'Thales S.A.',                sector:'Défense & Spatial', base:235.00, currency:'EUR', flag:'🇫🇷'},
+  'AM.PA':  {name:'Dassault Aviation',          sector:'Aviation',         base:278.00, currency:'EUR', flag:'🇫🇷'},
+  'SAF.PA': {name:'Safran S.A.',                sector:'Aéronautique',     base:322.00, currency:'EUR', flag:'🇫🇷'},
+  'ETL.PA': {name:'Eutelsat Communications',    sector:'Satellites',       base:2.10,   currency:'EUR', flag:'🇫🇷'}
+};
+
+const EUROPEAN_ETFS = {
+  'WDEF.DE': {name:'WisdomTree Europe Defence UCITS',   aum:4.2e9, expense_ratio:0.40, holdings:30, base:30.00, currency:'EUR', pea:false, country:'🇩🇪'},
+  'SERA.DE': {name:'Seraphim New Space UCITS',          aum:50e6,  expense_ratio:0.75, holdings:25, base:6.60,  currency:'EUR', pea:false, country:'🇩🇪'},
+  'WSPC.DE': {name:'WisdomTree Space Economy',          aum:100e6, expense_ratio:0.50, holdings:40, base:17.90, currency:'USD', pea:false, country:'🇩🇪'},
+  'EUDF.PA': {name:'BNP Paribas Easy Europe Defense',   aum:500e6, expense_ratio:0.18, holdings:30, base:25.00, currency:'EUR', pea:true,  country:'🇫🇷'}
+};
+
+/* =========================================================================
+   3. CHARGEMENT DES DONNÉES DEPUIS GITHUB
    ========================================================================= */
 async function chargerDonnees() {
-  /* 1. Cache local (5 min) */
   try {
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
     if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION_MS) {
-      console.log('📦 Cache local utilisé (' + Math.floor((Date.now() - cached.timestamp)/1000) + 's)');
+      console.log('📦 Cache local utilisé');
       STOCK_DATA = cached.stocks || {};
       DATA_SOURCE = 'Yahoo Finance (cache)';
       DATA_TIMESTAMP = cached.timestamp;
@@ -293,7 +331,6 @@ async function chargerDonnees() {
     }
   } catch {}
 
-  /* 2. Fichier data/stocks.json (généré par GitHub Actions) */
   try {
     console.log('🌐 Chargement de ' + DATA_URL + '…');
     const res = await fetch(DATA_URL + '?t=' + Date.now(), { cache: 'no-cache' });
@@ -302,9 +339,7 @@ async function chargerDonnees() {
     const json = await res.json();
     STOCK_DATA = json.stocks || {};
 
-    if (Object.keys(STOCK_DATA).length === 0) {
-      throw new Error('Aucun symbole dans stocks.json');
-    }
+    if (Object.keys(STOCK_DATA).length === 0) throw new Error('Aucun symbole');
 
     DATA_SOURCE = json.source || 'Yahoo Finance (GitHub)';
     DATA_TIMESTAMP = json.timestamp ? new Date(json.timestamp).getTime() : Date.now();
@@ -314,25 +349,22 @@ async function chargerDonnees() {
       timestamp: Date.now()
     }));
 
-    console.log(`✅ ${Object.keys(STOCK_DATA).length} symboles chargés depuis GitHub`);
+    console.log(`✅ ${Object.keys(STOCK_DATA).length} symboles chargés`);
     return;
   } catch (err) {
     console.warn('⚠️ data/stocks.json indisponible :', err.message);
   }
 
-  /* 3. Fallback : données simulées */
   STOCK_DATA = {};
   DATA_SOURCE = 'Données simulées (fallback)';
   DATA_TIMESTAMP = Date.now();
-  console.warn('⚠️ Utilisation des données simulées');
 }
 
 /* =========================================================================
-   3. ACCÈS AUX DONNÉES
+   4. ACCÈS AUX DONNÉES
    ========================================================================= */
 function getStockData(symbol, days) {
   const stock = STOCK_DATA[symbol];
-
   if (stock && stock.history && stock.history.length > 0) {
     const hist = stock.history.slice(-days);
     return {
@@ -346,15 +378,14 @@ function getStockData(symbol, days) {
       history: hist
     };
   }
-
   return generateFallbackData(symbol, days);
 }
 
-/* Générateur de secours (données simulées déterministes) */
 function generateFallbackData(symbol, days) {
-  const info = SPACE_ETFS[symbol] || SPCX_HOLDINGS[symbol];
+  const cleanSym = symbol.replace(/\.(PA|DE)$/, '');
+  const info = SPACE_ETFS[cleanSym] || SPCX_HOLDINGS[cleanSym] || FRENCH_STOCKS[symbol] || EUROPEAN_ETFS[symbol];
   const basePrice = info?.base || 10;
-  const volatility = symbol === 'SPCX' ? 0.22 : 0.18;
+  const volatility = cleanSym === 'SPCX' ? 0.22 : 0.18;
 
   let seed = 0;
   for (let i = 0; i < symbol.length; i++) seed += symbol.charCodeAt(i) * (i + 1);
@@ -382,7 +413,7 @@ function generateFallbackData(symbol, days) {
   return {
     symbol,
     name: info?.name || symbol,
-    currency: 'USD',
+    currency: info?.currency || 'USD',
     price: data[data.length-1].close,
     previousClose: data[data.length-2]?.close || data[data.length-1].close,
     dayHigh: 0,
@@ -392,16 +423,18 @@ function generateFallbackData(symbol, days) {
 }
 
 /* =========================================================================
-   4. ÉTAT
+   5. ÉTAT
    ========================================================================= */
-const STORAGE_PORTFOLIO = 'spcx_portfolio_v1';
-const STORAGE_ALERTS = 'spcx_alerts_v1';
+const STORAGE_PORTFOLIO = 'spcx_portfolio_v2';
+const STORAGE_ALERTS = 'spcx_alerts_v2';
 
 const state = {
   menu: '📈 SPCX Dashboard',
   symbol: 'SPCX',
   period: '1mo',
   compare: ['SPCX','UFO','ARKX'],
+  compareRegion: 'US',
+  compareMixed: ['SPCX', 'AIR.PA', 'HO.PA', 'SAF.PA'],
   portfolio: [],
   alerts: [],
   predictionDays: 7,
@@ -416,9 +449,12 @@ function sauverPortfolio(){ localStorage.setItem(STORAGE_PORTFOLIO, JSON.stringi
 function sauverAlerts(){ localStorage.setItem(STORAGE_ALERTS, JSON.stringify(state.alerts)); }
 
 /* =========================================================================
-   5. UTILITAIRES
+   6. UTILITAIRES
    ========================================================================= */
-function formatCurrency(v){ return '$' + Number(v).toFixed(2); }
+function formatCurrency(v, currency = 'USD'){
+  const sym = currency === 'EUR' ? '€' : '$';
+  return sym + Number(v).toFixed(2);
+}
 function formatLargeNumber(v){
   if (v >= 1e9) return '$' + (v/1e9).toFixed(1) + 'B';
   if (v >= 1e6) return '$' + (v/1e6).toFixed(1) + 'M';
@@ -430,10 +466,14 @@ function esc(s){
 function periodToDays(p){
   return {'1d':1,'5d':5,'1mo':30,'3mo':90,'6mo':180,'1y':365}[p] || 30;
 }
+function getSymbolInfo(sym){
+  return SPACE_ETFS[sym] || SPCX_HOLDINGS[sym] || FRENCH_STOCKS[sym] || EUROPEAN_ETFS[sym] || {name: sym};
+}
 
 function calcETFScore(symbol, hist){
   let score = 50;
-  const aum = SPACE_ETFS[symbol]?.aum || 0;
+  const info = SPACE_ETFS[symbol] || EUROPEAN_ETFS[symbol] || {};
+  const aum = info.aum || 0;
   if (aum > 1e9) score += 20;
   else if (aum > 500e6) score += 15;
   else if (aum > 100e6) score += 10;
@@ -449,12 +489,12 @@ function calcETFScore(symbol, hist){
     else if (perf < -10) score -= 10;
   }
 
-  const er = SPACE_ETFS[symbol]?.expense_ratio || 1.0;
+  const er = info.expense_ratio || 1.0;
   if (er < 0.4) score += 10;
   else if (er < 0.6) score += 5;
   else if (er > 0.8) score -= 10;
 
-  const holdings = SPACE_ETFS[symbol]?.holdings || 0;
+  const holdings = info.holdings || 0;
   if (holdings > 40) score += 10;
   else if (holdings > 25) score += 5;
 
@@ -468,7 +508,6 @@ function scoreGrade(score){
   return              {text:'FAIBLE',     cls:'score-poor',      icon:'⚠️'};
 }
 
-/* Régression polynomiale (moindres carrés) */
 function polyFit(x, y, degree){
   const n = x.length;
   const X = [];
@@ -504,7 +543,7 @@ function polyPredict(coef, x){
 }
 
 /* =========================================================================
-   6. HORLOGE FUSEAUX
+   7. HORLOGE
    ========================================================================= */
 function updateClocks(){
   const now = new Date();
@@ -518,17 +557,19 @@ function updateClocks(){
 setInterval(updateClocks, 1000);
 
 /* =========================================================================
-   7. SIDEBAR
+   8. SIDEBAR
    ========================================================================= */
 function renderSidebar(){
   const sb = document.getElementById('sidebar');
   const menus = [
-    {id:'📈 SPCX Dashboard',  label:'📈 SPCX Dashboard'},
-    {id:'🏆 Comparatif ETF',  label:'🏆 Comparatif ETF'},
-    {id:'📊 Holdings SPCX',   label:'📊 Holdings SPCX'},
-    {id:'💰 Portefeuille',    label:'💰 Portefeuille'},
-    {id:'🔔 Alertes prix',    label:'🔔 Alertes prix'},
-    {id:'🤖 Prédictions',     label:'🤖 Prédictions'}
+    {id:'📈 SPCX Dashboard',   label:'📈 SPCX Dashboard'},
+    {id:'🏆 Comparatif ETF',   label:'🏆 Comparatif ETF'},
+    {id:'📊 Holdings SPCX',    label:'📊 Holdings SPCX'},
+    {id:'🇫🇷 France / Europe', label:'🇫🇷 France / Europe'},
+    {id:'🌍 Comparaison US/EU', label:'🌍 Comparaison US/EU'},
+    {id:'💰 Portefeuille',     label:'💰 Portefeuille'},
+    {id:'🔔 Alertes prix',     label:'🔔 Alertes prix'},
+    {id:'🤖 Prédictions',      label:'🤖 Prédictions'}
   ];
 
   const isRealData = Object.keys(STOCK_DATA).length > 0;
@@ -588,7 +629,7 @@ function renderSidebar(){
     </div>
 
     <div style="margin-top:14px;font-size:.7rem;color:#94a3b8;text-align:center;">
-      Données : Yahoo Finance · MAJ : GitHub Actions
+      🇺🇸 US + 🇫🇷🇪🇺 Europe · MAJ : GitHub Actions
     </div>
   `;
 
@@ -612,7 +653,7 @@ function renderSidebar(){
 }
 
 /* =========================================================================
-   8. MAIN
+   9. MAIN
    ========================================================================= */
 function renderMain(){
   const m = document.getElementById('mainContent');
@@ -620,13 +661,16 @@ function renderMain(){
     <h1 class="main-header">🚀 SPCX & Space ETF Tracker</h1>
     <p class="sub-header">
       <strong>Suivi des ETF spatiaux et actions NewSpace</strong><br>
-      SPCX · UFO · ARKX · ROKT · ITA · PPA — Données <strong>Yahoo Finance</strong> via GitHub Actions
+      🇺🇸 SPCX · UFO · ARKX · ROKT · ITA · PPA &nbsp;·&nbsp; 🇫🇷 Airbus · Thales · Dassault · Safran · Eutelsat · ETF défense 🇪🇺<br>
+      Données <strong>Yahoo Finance</strong> via GitHub Actions
     </p>
   `;
 
   if (state.menu === '📈 SPCX Dashboard')      html += renderSPCXDashboard();
   else if (state.menu === '🏆 Comparatif ETF') html += renderComparatif();
   else if (state.menu === '📊 Holdings SPCX')  html += renderHoldings();
+  else if (state.menu === '🇫🇷 France / Europe') html += renderFranceEurope();
+  else if (state.menu === '🌍 Comparaison US/EU') html += renderComparisonUSEU();
   else if (state.menu === '💰 Portefeuille')   html += renderPortfolio();
   else if (state.menu === '🔔 Alertes prix')   html += renderAlerts();
   else if (state.menu === '🤖 Prédictions')    html += renderPredictions();
@@ -634,8 +678,8 @@ function renderMain(){
   html += `
     <div class="footer">
       <strong>SPCX & SPACE ETF TRACKER</strong> · Dashboard HTML/JS/CSS · Thème 🇫🇷 Bleu Blanc Rouge<br>
-      Données : Yahoo Finance mises à jour automatiquement par GitHub Actions<br>
-      SPCX = SPAC & NewSpace ETF (ProcureAM) · Holdings : Rocket Lab, AST SpaceMobile, Planet Labs, Virgin Galactic…
+      🇺🇸 US : SPCX · UFO · ARKX · ROKT · ITA · PPA &nbsp;|&nbsp; 🇫🇷 FR : AIR · HO · AM · SAF · ETL &nbsp;|&nbsp; 🇪🇺 ETF : WDEF · SERA · WSPC · EUDF<br>
+      Données Yahoo Finance mises à jour automatiquement par GitHub Actions
     </div>
   `;
 
@@ -653,11 +697,23 @@ function attachMainListeners(){
       render();
     };
   }
+  const multiMixed = m.querySelector('#compareMixed');
+  if (multiMixed){
+    multiMixed.onchange = () => {
+      state.compareMixed = Array.from(multiMixed.selectedOptions).map(o => o.value);
+      render();
+    };
+  }
   const addBtn = m.querySelector('#addPositionBtn');
   if (addBtn){
     addBtn.onclick = () => {
       const type = m.querySelector('#posType').value;
-      const sym = type === 'ETF' ? m.querySelector('#posETF').value : m.querySelector('#posStock').value;
+      let sym;
+      if (type === 'ETF_US') sym = m.querySelector('#posETF').value;
+      else if (type === 'ETF_EU') sym = m.querySelector('#posETFEU').value;
+      else if (type === 'Action_US') sym = m.querySelector('#posStock').value;
+      else sym = m.querySelector('#posStockFR').value;
+
       const shares = parseInt(m.querySelector('#posShares').value) || 0;
       const price = parseFloat(m.querySelector('#posPrice').value) || 0;
       if (shares > 0 && price > 0){
@@ -716,14 +772,16 @@ function attachMainListeners(){
   if (typeSelect){
     typeSelect.onchange = () => {
       const v = typeSelect.value;
-      m.querySelector('#posETFWrap').style.display = v === 'ETF' ? '' : 'none';
-      m.querySelector('#posStockWrap').style.display = v === 'Action' ? '' : 'none';
+      m.querySelector('#posETFUSWrap').style.display = v === 'ETF_US' ? '' : 'none';
+      m.querySelector('#posETFEUWrap').style.display = v === 'ETF_EU' ? '' : 'none';
+      m.querySelector('#posStockUSWrap').style.display = v === 'Action_US' ? '' : 'none';
+      m.querySelector('#posStockFRWrap').style.display = v === 'Action_FR' ? '' : 'none';
     };
   }
 }
 
 /* =========================================================================
-   9. VUE : SPCX DASHBOARD
+   10. VUE : SPCX DASHBOARD
    ========================================================================= */
 function renderSPCXDashboard(){
   const days = periodToDays(state.period);
@@ -843,7 +901,7 @@ function renderSPCXDashboard(){
 }
 
 /* =========================================================================
-   10. VUE : COMPARATIF ETF
+   11. VUE : COMPARATIF ETF
    ========================================================================= */
 function renderComparatif(){
   const etfScores = Object.entries(SPACE_ETFS).map(([sym, data]) => {
@@ -856,7 +914,7 @@ function renderComparatif(){
   }).sort((a,b) => b.score - a.score);
 
   return `
-    <h3 class="section-header">🏆 COMPARATIF DES ETF SPATIAUX</h3>
+    <h3 class="section-header">🏆 COMPARATIF DES ETF SPATIAUX — 🇺🇸 US</h3>
 
     <div class="score-list">
       ${etfScores.map(({sym, data, score, grade, price}) => `
@@ -914,7 +972,7 @@ function renderComparatif(){
 }
 
 /* =========================================================================
-   11. VUE : HOLDINGS SPCX
+   12. VUE : HOLDINGS SPCX
    ========================================================================= */
 function renderHoldings(){
   const top5Weight = Object.values(SPCX_HOLDINGS).sort((a,b)=>b.weight-a.weight).slice(0,5).reduce((s,d) => s + d.weight, 0);
@@ -990,7 +1048,263 @@ function renderHoldings(){
 }
 
 /* =========================================================================
-   12. VUE : PORTEFEUILLE
+   13. VUE : 🇫🇷 FRANCE / 🇪🇺 EUROPE
+   ========================================================================= */
+function renderFranceEurope(){
+  const frenchStocks = Object.entries(FRENCH_STOCKS).map(([sym, d]) => {
+    const stock = getStockData(sym, 30);
+    const hist = stock.history;
+    const price = stock.price || hist[hist.length-1].close;
+    const prev = hist[hist.length-2]?.close || price;
+    const changePct = prev > 0 ? ((price/prev - 1) * 100) : 0;
+    const perf30 = hist[0] ? ((price / hist[0].close - 1) * 100) : 0;
+    return {sym, ...d, price, changePct, perf30, history: hist};
+  });
+
+  const europeanEtfs = Object.entries(EUROPEAN_ETFS).map(([sym, d]) => {
+    const stock = getStockData(sym, 30);
+    const hist = stock.history;
+    const price = stock.price || hist[hist.length-1].close;
+    const prev = hist[hist.length-2]?.close || price;
+    const changePct = prev > 0 ? ((price/prev - 1) * 100) : 0;
+    const perf30 = hist[0] ? ((price / hist[0].close - 1) * 100) : 0;
+    return {sym, ...d, price, changePct, perf30, history: hist};
+  });
+
+  const bestFr = frenchStocks.reduce((b, s) => s.perf30 > b.perf30 ? s : b, frenchStocks[0]);
+  const bestEtf = europeanEtfs.reduce((b, e) => e.perf30 > b.perf30 ? e : b, europeanEtfs[0]);
+
+  window.__frStocks = frenchStocks;
+  window.__euEtfs = europeanEtfs;
+  window.__frHistories = frenchStocks.map(s => ({sym: s.sym, name: s.name, history: s.history}));
+
+  return `
+    <h3 class="section-header">🇫🇷 MARCHÉ FRANÇAIS — AÉROSPATIAL & DÉFENSE</h3>
+
+    <div class="kpi-grid">
+      <div class="kpi-card rouge">
+        <div class="label">🏭 Actions françaises</div>
+        <div class="value">${frenchStocks.length}</div>
+        <div class="sub">Airbus · Thales · Dassault · Safran · Eutelsat</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">🇪🇺 ETF européens</div>
+        <div class="value">${europeanEtfs.length}</div>
+        <div class="sub">Défense & Spatial</div>
+      </div>
+      <div class="kpi-card vert">
+        <div class="label">✅ Éligibles PEA</div>
+        <div class="value">${europeanEtfs.filter(e => e.pea).length}</div>
+        <div class="sub">BNP Paribas Easy Europe Defense</div>
+      </div>
+      <div class="kpi-card jaune">
+        <div class="label">🏆 Meilleure perf. 30j</div>
+        <div class="value">${bestFr ? bestFr.sym.replace('.PA','') : '—'}</div>
+        <div class="sub">${bestFr ? (bestFr.perf30 >= 0 ? '+' : '') + bestFr.perf30.toFixed(1) + '%' : '—'}</div>
+      </div>
+    </div>
+
+    <h3 class="section-header">🏭 Actions Françaises</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Symbole</th><th>Société</th><th>Secteur</th><th>Prix (€)</th><th>Variation 1j</th><th>Perf. 30j</th></tr></thead>
+        <tbody>
+          ${frenchStocks.map(s => `
+            <tr>
+              <td><strong>${esc(s.sym.replace('.PA',''))}</strong></td>
+              <td>${esc(s.name)}</td>
+              <td><span class="badge badge-fr">${esc(s.sector)}</span></td>
+              <td>${s.price.toFixed(2)} €</td>
+              <td class="${s.changePct >= 0 ? 'delta-up' : 'delta-down'}">${s.changePct >= 0 ? '+' : ''}${s.changePct.toFixed(2)}%</td>
+              <td class="${s.perf30 >= 0 ? 'delta-up' : 'delta-down'}">${s.perf30 >= 0 ? '+' : ''}${s.perf30.toFixed(2)}%</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="section-header">🇪🇺 ETF Européens — Défense & Spatial</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Symbole</th><th>Nom</th><th>AUM</th><th>Frais</th><th>Prix</th><th>Perf. 30j</th><th>PEA</th></tr></thead>
+        <tbody>
+          ${europeanEtfs.map(e => `
+            <tr>
+              <td><strong>${esc(e.sym.replace(/\.(PA|DE)$/,''))}</strong> ${e.country}</td>
+              <td>${esc(e.name)}</td>
+              <td>${formatLargeNumber(e.aum)}</td>
+              <td>${e.expense_ratio}%</td>
+              <td>${e.price.toFixed(2)} ${e.currency}</td>
+              <td class="${e.perf30 >= 0 ? 'delta-up' : 'delta-down'}">${e.perf30 >= 0 ? '+' : ''}${e.perf30.toFixed(2)}%</td>
+              <td>${e.pea ? '<span class="badge badge-pea">✅ Oui</span>' : '<span class="badge">❌ Non</span>'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="section-header">📈 Performance comparative — Actions Françaises</h3>
+    <div class="chart-box tall">
+      <h3>Variation normalisée sur 30 jours (%)</h3>
+      <div class="canvas-wrap"><canvas id="chartFrance"></canvas></div>
+    </div>
+
+    <h3 class="section-header">📊 Performance comparative — ETF Européens</h3>
+    <div class="chart-box tall">
+      <h3>Variation normalisée sur 30 jours (%)</h3>
+      <div class="canvas-wrap"><canvas id="chartEU"></canvas></div>
+    </div>
+  `;
+}
+
+/* =========================================================================
+   14. VUE : 🌍 COMPARAISON US / EUROPE
+   ========================================================================= */
+function renderComparisonUSEU(){
+  const allSymbols = [
+    ...Object.keys(SPACE_ETFS).map(s => ({sym:s, region:'US', type:'ETF'})),
+    ...Object.keys(SPCX_HOLDINGS).map(s => ({sym:s, region:'US', type:'Action'})),
+    ...Object.keys(FRENCH_STOCKS).map(s => ({sym:s, region:'FR', type:'Action'})),
+    ...Object.keys(EUROPEAN_ETFS).map(s => ({sym:s, region:'EU', type:'ETF'}))
+  ];
+
+  const perfData = allSymbols.map(item => {
+    const stock = getStockData(item.sym, 30);
+    const hist = stock.history;
+    const price = stock.price || hist[hist.length-1].close;
+    const perf = hist[0] ? ((price / hist[0].close - 1) * 100) : 0;
+    return {...item, price, perf, info: getSymbolInfo(item.sym)};
+  });
+
+  const usPerf = perfData.filter(p => p.region === 'US');
+  const euPerf = perfData.filter(p => p.region !== 'US');
+
+  const avgUS = usPerf.reduce((s,p) => s + p.perf, 0) / (usPerf.length || 1);
+  const avgEU = euPerf.reduce((s,p) => s + p.perf, 0) / (euPerf.length || 1);
+
+  const topUS = [...usPerf].sort((a,b) => b.perf - a.perf).slice(0, 5);
+  const topEU = [...euPerf].sort((a,b) => b.perf - a.perf).slice(0, 5);
+
+  const defaultMixed = state.compareMixed.length ? state.compareMixed : ['SPCX', 'AIR.PA', 'HO.PA', 'SAF.PA', 'EUDF.PA'];
+  window.__mixedCompare = defaultMixed.map(sym => {
+    const stock = getStockData(sym, 90);
+    return {sym, name: getSymbolInfo(sym).name || sym, history: stock.history};
+  });
+
+  return `
+    <h3 class="section-header">🌍 COMPARAISON US / EUROPE</h3>
+
+    <div class="compare-banner">
+      <div class="compare-banner-inner">
+        <h3>📊 Synthèse des marchés</h3>
+        <div class="compare-grid">
+          <div class="compare-col us">
+            <h4>🇺🇸 Marché US</h4>
+            <ul>
+              <li><span>ETF spatiaux</span><strong>${Object.keys(SPACE_ETFS).length}</strong></li>
+              <li><span>Actions NewSpace</span><strong>${Object.keys(SPCX_HOLDINGS).length}</strong></li>
+              <li><span>Performance moy. 30j</span><strong class="${avgUS >= 0 ? 'delta-up' : 'delta-down'}">${avgUS >= 0 ? '+' : ''}${avgUS.toFixed(2)}%</strong></li>
+            </ul>
+          </div>
+          <div class="compare-col eu">
+            <h4>🇫🇷🇪🇺 Marché Europe</h4>
+            <ul>
+              <li><span>Actions françaises</span><strong>${Object.keys(FRENCH_STOCKS).length}</strong></li>
+              <li><span>ETF européens</span><strong>${Object.keys(EUROPEAN_ETFS).length}</strong></li>
+              <li><span>Performance moy. 30j</span><strong class="${avgEU >= 0 ? 'delta-up' : 'delta-down'}">${avgEU >= 0 ? '+' : ''}${avgEU.toFixed(2)}%</strong></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card ${avgUS >= 0 ? 'vert' : 'rouge'}">
+        <div class="label">🇺🇸 Performance moy. US</div>
+        <div class="value">${avgUS >= 0 ? '+' : ''}${avgUS.toFixed(2)}%</div>
+        <div class="sub">30 derniers jours</div>
+      </div>
+      <div class="kpi-card ${avgEU >= 0 ? 'vert' : 'rouge'}">
+        <div class="label">🇪🇺 Performance moy. Europe</div>
+        <div class="value">${avgEU >= 0 ? '+' : ''}${avgEU.toFixed(2)}%</div>
+        <div class="sub">30 derniers jours</div>
+      </div>
+      <div class="kpi-card ${avgUS > avgEU ? 'vert' : 'jaune'}">
+        <div class="label">🏆 Meilleur marché</div>
+        <div class="value">${avgUS > avgEU ? '🇺🇸 US' : '🇪🇺 Europe'}</div>
+        <div class="sub">Écart : ${Math.abs(avgUS - avgEU).toFixed(2)}%</div>
+      </div>
+      <div class="kpi-card rouge">
+        <div class="label">📊 Écart US / EU</div>
+        <div class="value">${(avgUS - avgEU) >= 0 ? '+' : ''}${(avgUS - avgEU).toFixed(2)}%</div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-box">
+        <h4>🇺🇸 Top 5 US (30j)</h4>
+        <div class="table-wrap" style="margin:0;">
+          <table style="min-width:auto;">
+            <thead><tr><th>Symbole</th><th>Nom</th><th>Perf.</th></tr></thead>
+            <tbody>
+              ${topUS.map(p => `
+                <tr>
+                  <td><strong>${esc(p.sym)}</strong></td>
+                  <td>${esc(p.info.name || p.sym)}</td>
+                  <td class="${p.perf >= 0 ? 'delta-up' : 'delta-down'}">${p.perf >= 0 ? '+' : ''}${p.perf.toFixed(2)}%</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="form-box">
+        <h4>🇪🇺 Top 5 Europe (30j)</h4>
+        <div class="table-wrap" style="margin:0;">
+          <table style="min-width:auto;">
+            <thead><tr><th>Symbole</th><th>Nom</th><th>Perf.</th></tr></thead>
+            <tbody>
+              ${topEU.map(p => `
+                <tr>
+                  <td><strong>${esc(p.sym.replace(/\.(PA|DE)$/,''))}</strong></td>
+                  <td>${esc(p.info.name || p.sym)}</td>
+                  <td class="${p.perf >= 0 ? 'delta-up' : 'delta-down'}">${p.perf >= 0 ? '+' : ''}${p.perf.toFixed(2)}%</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="section-header">📈 Comparaison directe US vs Europe</h3>
+    <div class="form-box" style="margin-bottom:20px;">
+      <h4>Sélectionner les symboles à comparer (Ctrl pour multi-sélection)</h4>
+      <select id="compareMixed" multiple size="10" style="min-height:240px;">
+        <optgroup label="🇺🇸 ETF US">
+          ${Object.keys(SPACE_ETFS).map(s => `<option value="${s}" ${defaultMixed.includes(s)?'selected':''}>${s} — ${esc(SPACE_ETFS[s].name)}</option>`).join('')}
+        </optgroup>
+        <optgroup label="🇺🇸 Actions US">
+          ${Object.keys(SPCX_HOLDINGS).slice(0,6).map(s => `<option value="${s}" ${defaultMixed.includes(s)?'selected':''}>${s} — ${esc(SPCX_HOLDINGS[s].name)}</option>`).join('')}
+        </optgroup>
+        <optgroup label="🇫🇷 Actions françaises">
+          ${Object.keys(FRENCH_STOCKS).map(s => `<option value="${s}" ${defaultMixed.includes(s)?'selected':''}>${esc(s.replace('.PA',''))} — ${esc(FRENCH_STOCKS[s].name)}</option>`).join('')}
+        </optgroup>
+        <optgroup label="🇪🇺 ETF européens">
+          ${Object.keys(EUROPEAN_ETFS).map(s => `<option value="${s}" ${defaultMixed.includes(s)?'selected':''}>${esc(s.replace(/\.(PA|DE)$/,''))} — ${esc(EUROPEAN_ETFS[s].name)}</option>`).join('')}
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="chart-box tall">
+      <h3>Performance normalisée sur 3 mois — US vs Europe (%)</h3>
+      <div class="canvas-wrap"><canvas id="chartMixed"></canvas></div>
+    </div>
+  `;
+}
+
+/* =========================================================================
+   15. VUE : PORTEFEUILLE
    ========================================================================= */
 function renderPortfolio(){
   const positions = state.portfolio.map((pos, idx) => {
@@ -1000,7 +1314,9 @@ function renderPortfolio(){
     const cost = pos.shares * pos.buy_price;
     const profit = value - cost;
     const profitPct = cost > 0 ? (profit / cost * 100) : 0;
-    return {...pos, current, value, cost, profit, profitPct, idx};
+    const info = getSymbolInfo(pos.symbol);
+    const currency = info.currency || 'USD';
+    return {...pos, current, value, cost, profit, profitPct, idx, currency, name: info.name || pos.symbol};
   });
 
   const totalValue = positions.reduce((s,p) => s + p.value, 0);
@@ -1017,28 +1333,42 @@ function renderPortfolio(){
         <div class="form-field">
           <label>Type</label>
           <select id="posType">
-            <option value="ETF">ETF</option>
-            <option value="Action">Action</option>
+            <option value="ETF_US">🇺🇸 ETF US</option>
+            <option value="ETF_EU">🇪🇺 ETF Européen</option>
+            <option value="Action_US">🇺🇸 Action US</option>
+            <option value="Action_FR">🇫🇷 Action Française</option>
           </select>
         </div>
-        <div class="form-field" id="posETFWrap">
-          <label>ETF</label>
+        <div class="form-field" id="posETFUSWrap">
+          <label>ETF US</label>
           <select id="posETF">
             ${Object.keys(SPACE_ETFS).map(s => `<option value="${s}">${s} — ${esc(SPACE_ETFS[s].name)}</option>`).join('')}
           </select>
         </div>
-        <div class="form-field" id="posStockWrap" style="display:none;">
-          <label>Action</label>
+        <div class="form-field" id="posETFEUWrap" style="display:none;">
+          <label>ETF Européen</label>
+          <select id="posETFEU">
+            ${Object.keys(EUROPEAN_ETFS).map(s => `<option value="${s}">${esc(s.replace(/\.(PA|DE)$/,''))} — ${esc(EUROPEAN_ETFS[s].name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-field" id="posStockUSWrap" style="display:none;">
+          <label>Action US</label>
           <select id="posStock">
             ${Object.keys(SPCX_HOLDINGS).map(s => `<option value="${s}">${s} — ${esc(SPCX_HOLDINGS[s].name)}</option>`).join('')}
           </select>
         </div>
-        <div class="form-field">
-          <label>Quantité</label>
-          <input type="number" id="posShares" value="100" min="1" step="10">
+        <div class="form-field" id="posStockFRWrap" style="display:none;">
+          <label>Action Française</label>
+          <select id="posStockFR">
+            ${Object.keys(FRENCH_STOCKS).map(s => `<option value="${s}">${esc(s.replace('.PA',''))} — ${esc(FRENCH_STOCKS[s].name)}</option>`).join('')}
+          </select>
         </div>
         <div class="form-field">
-          <label>Prix d'achat ($)</label>
+          <label>Quantité</label>
+          <input type="number" id="posShares" value="10" min="1" step="1">
+        </div>
+        <div class="form-field">
+          <label>Prix d'achat</label>
           <input type="number" id="posPrice" value="10.00" min="0.01" step="0.5">
         </div>
         <button class="btn" id="addPositionBtn">➕ Ajouter au portefeuille</button>
@@ -1075,11 +1405,12 @@ function renderPortfolio(){
       <h3 class="section-header">📋 Positions détaillées</h3>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Symbole</th><th>Quantité</th><th>Prix achat</th><th>Prix actuel</th><th>Valeur</th><th>Profit</th><th>Profit %</th><th></th></tr></thead>
+          <thead><tr><th>Symbole</th><th>Nom</th><th>Quantité</th><th>Prix achat</th><th>Prix actuel</th><th>Valeur</th><th>Profit</th><th>Profit %</th><th></th></tr></thead>
           <tbody>
             ${positions.map(p => `
               <tr>
-                <td><strong>${esc(p.symbol)}</strong></td>
+                <td><strong>${esc(p.symbol.replace(/\.(PA|DE)$/,''))}</strong></td>
+                <td>${esc(p.name)}</td>
                 <td>${p.shares}</td>
                 <td>${formatCurrency(p.buy_price)}</td>
                 <td>${formatCurrency(p.current)}</td>
@@ -1097,10 +1428,15 @@ function renderPortfolio(){
 }
 
 /* =========================================================================
-   13. VUE : ALERTES
+   16. VUE : ALERTES
    ========================================================================= */
 function renderAlerts(){
-  const allSymbols = [...Object.keys(SPACE_ETFS), ...Object.keys(SPCX_HOLDINGS)];
+  const allSymbols = [
+    ...Object.keys(SPACE_ETFS),
+    ...Object.keys(SPCX_HOLDINGS),
+    ...Object.keys(FRENCH_STOCKS),
+    ...Object.keys(EUROPEAN_ETFS)
+  ];
 
   return `
     <h3 class="section-header">🔔 ALERTES DE PRIX</h3>
@@ -1111,11 +1447,22 @@ function renderAlerts(){
         <div class="form-field">
           <label>Symbole</label>
           <select id="alertSymbol">
-            ${allSymbols.map(s => `<option value="${s}">${s}</option>`).join('')}
+            <optgroup label="🇺🇸 ETF US">
+              ${Object.keys(SPACE_ETFS).map(s => `<option value="${s}">${s} — ${esc(SPACE_ETFS[s].name)}</option>`).join('')}
+            </optgroup>
+            <optgroup label="🇺🇸 Actions US">
+              ${Object.keys(SPCX_HOLDINGS).map(s => `<option value="${s}">${s} — ${esc(SPCX_HOLDINGS[s].name)}</option>`).join('')}
+            </optgroup>
+            <optgroup label="🇫🇷 Actions FR">
+              ${Object.keys(FRENCH_STOCKS).map(s => `<option value="${s}">${esc(s.replace('.PA',''))} — ${esc(FRENCH_STOCKS[s].name)}</option>`).join('')}
+            </optgroup>
+            <optgroup label="🇪🇺 ETF EU">
+              ${Object.keys(EUROPEAN_ETFS).map(s => `<option value="${s}">${esc(s.replace(/\.(PA|DE)$/,''))} — ${esc(EUROPEAN_ETFS[s].name)}</option>`).join('')}
+            </optgroup>
           </select>
         </div>
         <div class="form-field">
-          <label>Prix cible ($)</label>
+          <label>Prix cible</label>
           <input type="number" id="alertPrice" value="50.00" min="0.01" step="1">
         </div>
         <div class="form-field">
@@ -1142,7 +1489,7 @@ function renderAlerts(){
           return `
             <div class="alert-item" style="border-left-color:${statusColor};">
               <div>
-                <strong>${esc(a.symbol)}</strong>
+                <strong>${esc(a.symbol.replace(/\.(PA|DE)$/,''))}</strong>
                 ${a.condition === 'above' ? '≥' : '≤'} ${formatCurrency(a.price)}
                 <br>
                 <small style="color:${statusColor};font-weight:800;font-size:.72rem;">${statusIcon} ${statusText}</small>
@@ -1158,7 +1505,7 @@ function renderAlerts(){
 }
 
 /* =========================================================================
-   14. VUE : PRÉDICTIONS
+   17. VUE : PRÉDICTIONS
    ========================================================================= */
 function renderPredictions(){
   const days = 90;
@@ -1168,7 +1515,7 @@ function renderPredictions(){
   if (hist.length < 10) {
     return `
       <h3 class="section-header">🤖 PRÉDICTIONS ML — ${esc(state.symbol)}</h3>
-      <div class="empty-msg">Pas assez de données historiques (minimum 10 jours requis)</div>
+      <div class="empty-msg">Pas assez de données historiques</div>
     `;
   }
 
@@ -1265,7 +1612,7 @@ function renderPredictions(){
 }
 
 /* =========================================================================
-   15. GRAPHIQUES
+   18. GRAPHIQUES
    ========================================================================= */
 let charts = {};
 function destroyCharts(){
@@ -1280,7 +1627,6 @@ function renderCharts(){
   const textColor = '#475569';
   const font = { family: '"Segoe UI", system-ui, sans-serif', size: 11 };
 
-  /* Graphique principal */
   const cMain = document.getElementById('chartMain');
   if (cMain && window.__hist){
     const hist = window.__hist;
@@ -1297,26 +1643,8 @@ function renderCharts(){
       data: {
         labels,
         datasets: [
-          {
-            label: window.__currentSymbol || state.symbol,
-            data: closes,
-            borderColor: '#002395',
-            backgroundColor: 'rgba(0,35,149,.08)',
-            borderWidth: 2.5,
-            fill: true,
-            pointRadius: 0,
-            tension: 0.25
-          },
-          {
-            label: 'MA20',
-            data: ma20,
-            borderColor: '#ED2939',
-            borderWidth: 1.5,
-            borderDash: [6, 4],
-            fill: false,
-            pointRadius: 0,
-            tension: 0.25
-          }
+          { label: window.__currentSymbol || state.symbol, data: closes, borderColor: '#002395', backgroundColor: 'rgba(0,35,149,.08)', borderWidth: 2.5, fill: true, pointRadius: 0, tension: 0.25 },
+          { label: 'MA20', data: ma20, borderColor: '#ED2939', borderWidth: 1.5, borderDash: [6, 4], fill: false, pointRadius: 0, tension: 0.25 }
         ]
       },
       options: {
@@ -1334,7 +1662,6 @@ function renderCharts(){
     });
   }
 
-  /* Comparaison */
   const cComp = document.getElementById('chartCompare');
   if (cComp){
     const etfs = ['SPCX', 'UFO', 'ARKX', 'ITA'];
@@ -1348,9 +1675,7 @@ function renderCharts(){
         data: hist.map(h => ((h.close / base - 1) * 100)),
         borderColor: colors[i],
         backgroundColor: colors[i] + '20',
-        borderWidth: 2,
-        pointRadius: 0,
-        tension: 0.25
+        borderWidth: 2, pointRadius: 0, tension: 0.25
       };
     });
     charts.compare = new Chart(cComp, {
@@ -1370,7 +1695,6 @@ function renderCharts(){
     });
   }
 
-  /* Multi-compare */
   const cMulti = document.getElementById('chartMulti');
   if (cMulti){
     const colors = ['#002395', '#1D4ED8', '#3B82F6', '#ED2939', '#f59e0b', '#22c55e'];
@@ -1383,9 +1707,7 @@ function renderCharts(){
         data: hist.map(h => (h.close / base - 1) * 100),
         borderColor: colors[i % colors.length],
         backgroundColor: colors[i % colors.length] + '20',
-        borderWidth: 2,
-        pointRadius: 0,
-        tension: 0.25
+        borderWidth: 2, pointRadius: 0, tension: 0.25
       };
     });
     charts.multi = new Chart(cMulti, {
@@ -1405,7 +1727,6 @@ function renderCharts(){
     });
   }
 
-  /* Secteurs */
   const cSector = document.getElementById('chartSector');
   if (cSector && window.__sectorWeights){
     const labels = Object.keys(window.__sectorWeights);
@@ -1413,20 +1734,14 @@ function renderCharts(){
     const palette = ['#002395', '#1D4ED8', '#3B82F6', '#ED2939', '#f59e0b', '#22c55e', '#a855f7'];
     charts.sector = new Chart(cSector, {
       type: 'doughnut',
-      data: {
-        labels,
-        datasets: [{ data: values, backgroundColor: labels.map((_, i) => palette[i % palette.length]), borderWidth: 3, borderColor: '#fff' }]
-      },
+      data: { labels, datasets: [{ data: values, backgroundColor: labels.map((_, i) => palette[i % palette.length]), borderWidth: 3, borderColor: '#fff' }] },
       options: {
         responsive: true, maintainAspectRatio: false, cutout: '55%',
-        plugins: {
-          legend: { position: 'right', labels: { color: textColor, font: { ...font, size: 11 }, padding: 10, boxWidth: 14 } }
-        }
+        plugins: { legend: { position: 'right', labels: { color: textColor, font: { ...font, size: 11 }, padding: 10, boxWidth: 14 } } }
       }
     });
   }
 
-  /* Top 10 holdings */
   const cTop10 = document.getElementById('chartTop10');
   if (cTop10 && window.__holdings){
     const top10 = window.__holdings.slice(0, 10);
@@ -1434,21 +1749,107 @@ function renderCharts(){
       type: 'bar',
       data: {
         labels: top10.map(h => h.sym),
-        datasets: [{
-          label: 'Poids (%)',
-          data: top10.map(h => h.weight),
-          backgroundColor: top10.map((_, i) => i === 0 ? '#ED2939' : i < 3 ? '#1D4ED8' : '#3B82F6'),
-          borderRadius: 6
-        }]
+        datasets: [{ label: 'Poids (%)', data: top10.map(h => h.weight),
+          backgroundColor: top10.map((_, i) => i === 0 ? '#ED2939' : i < 3 ? '#1D4ED8' : '#3B82F6'), borderRadius: 6 }]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.y + '%' } }
-        },
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.y + '%' } } },
         scales: {
           x: { ticks: { color: textColor, font }, grid: { display: false } },
+          y: { ticks: { color: textColor, font, callback: v => v + '%' }, grid: { color: gridColor } }
+        }
+      }
+    });
+  }
+
+  /* Graphique France */
+  const cFr = document.getElementById('chartFrance');
+  if (cFr && window.__frStocks){
+    const colors = ['#002395', '#1D4ED8', '#3B82F6', '#ED2939', '#f59e0b'];
+    const datasets = window.__frStocks.map((s, i) => {
+      const base = s.history[0]?.close || s.price;
+      return {
+        label: `${s.sym.replace('.PA','')} — ${s.name}`,
+        data: s.history.map(h => ((h.close / base - 1) * 100)),
+        borderColor: colors[i % colors.length],
+        backgroundColor: colors[i % colors.length] + '20',
+        borderWidth: 2, pointRadius: 0, tension: 0.25
+      };
+    });
+    charts.france = new Chart(cFr, {
+      type: 'line',
+      data: { labels: datasets[0]?.data.map((_, i) => i) || [], datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: textColor, font: { ...font, size: 12 } } },
+          tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ' : ' + ctx.parsed.y.toFixed(2) + '%' } }
+        },
+        scales: {
+          x: { ticks: { display: false }, grid: { display: false } },
+          y: { ticks: { color: textColor, font, callback: v => v + '%' }, grid: { color: gridColor } }
+        }
+      }
+    });
+  }
+
+  /* Graphique ETF EU */
+  const cEU = document.getElementById('chartEU');
+  if (cEU && window.__euEtfs){
+    const colors = ['#002395', '#1D4ED8', '#3B82F6', '#ED2939'];
+    const datasets = window.__euEtfs.map((e, i) => {
+      const base = e.history[0]?.close || e.price;
+      return {
+        label: `${e.sym.replace(/\.(PA|DE)$/,'')} — ${e.name}`,
+        data: e.history.map(h => ((h.close / base - 1) * 100)),
+        borderColor: colors[i % colors.length],
+        backgroundColor: colors[i % colors.length] + '20',
+        borderWidth: 2, pointRadius: 0, tension: 0.25
+      };
+    });
+    charts.eu = new Chart(cEU, {
+      type: 'line',
+      data: { labels: datasets[0]?.data.map((_, i) => i) || [], datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: textColor, font: { ...font, size: 12 } } },
+          tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ' : ' + ctx.parsed.y.toFixed(2) + '%' } }
+        },
+        scales: {
+          x: { ticks: { display: false }, grid: { display: false } },
+          y: { ticks: { color: textColor, font, callback: v => v + '%' }, grid: { color: gridColor } }
+        }
+      }
+    });
+  }
+
+  /* Graphique Mixed US / EU */
+  const cMixed = document.getElementById('chartMixed');
+  if (cMixed && window.__mixedCompare){
+    const colors = ['#002395', '#1D4ED8', '#3B82F6', '#ED2939', '#C8102E', '#f59e0b', '#22c55e', '#a855f7'];
+    const datasets = window.__mixedCompare.map((item, i) => {
+      const base = item.history[0]?.close || 1;
+      return {
+        label: `${item.sym.replace(/\.(PA|DE)$/,'')} — ${item.name}`,
+        data: item.history.map(h => ((h.close / base - 1) * 100)),
+        borderColor: colors[i % colors.length],
+        backgroundColor: colors[i % colors.length] + '20',
+        borderWidth: 2, pointRadius: 0, tension: 0.25
+      };
+    });
+    charts.mixed = new Chart(cMixed, {
+      type: 'line',
+      data: { labels: datasets[0]?.data.map((_, i) => i) || [], datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: textColor, font: { ...font, size: 11 } } },
+          tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ' : ' + ctx.parsed.y.toFixed(2) + '%' } }
+        },
+        scales: {
+          x: { ticks: { display: false }, grid: { display: false } },
           y: { ticks: { color: textColor, font, callback: v => v + '%' }, grid: { color: gridColor } }
         }
       }
@@ -1495,7 +1896,7 @@ function renderCharts(){
 }
 
 /* =========================================================================
-   16. RENDU GLOBAL + DÉMARRAGE
+   19. RENDU GLOBAL + DÉMARRAGE
    ========================================================================= */
 function render(){
   renderSidebar();
@@ -1503,18 +1904,14 @@ function render(){
 }
 
 async function demarrer(){
-  /* Afficher le loader */
   document.getElementById('sidebar').innerHTML = '';
   document.getElementById('mainContent').innerHTML = `
     <h1 class="main-header">🚀 SPCX & Space ETF Tracker</h1>
     <div class="loading-msg">🔄 Chargement des cours depuis GitHub Actions…</div>
   `;
 
-  /* Charger l'état local + les données */
   chargerEtat();
   await chargerDonnees();
-
-  /* Rendu final */
   render();
 }
 
