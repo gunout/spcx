@@ -1,4 +1,4 @@
-# 🚀 SPCX & Space ETF Tracker
+# 🚀 SPCX & Space ETF Tracker — US · France · Europe
 
 [![GitHub](https://img.shields.io/badge/GitHub-gunout%2Fspcx-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/gunout/spcx)
 [![Déployé](https://img.shields.io/badge/Déployé-En_ligne-002395?style=for-the-badge&logo=githubpages&logoColor=white)](https://gunout.github.io/spcx/)
@@ -7,25 +7,30 @@
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-20+-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![License MIT](https://img.shields.io/badge/License-MIT-002395?style=for-the-badge)
 ![No Dependencies](https://img.shields.io/badge/Dependencies-0-ED2939?style=for-the-badge)
 ![Responsive](https://img.shields.io/badge/Responsive-Yes-1D4ED8?style=for-the-badge)
 
-![ETF](https://img.shields.io/badge/ETF-6-002395?style=flat-square)
-![Actions](https://img.shields.io/badge/Actions-12-1D4ED8?style=flat-square)
-![Vues](https://img.shields.io/badge/Vues-6-3B82F6?style=flat-square)
-![Source](https://img.shields.io/badge/Source-Yahoo_Finance-ED2939?style=flat-square)
-![Mise à jour](https://img.shields.io/badge/Mise_à_jour-Horaire-C8102E?style=flat-square)
-![Langue](https://img.shields.io/badge/Langue-Français-1D4ED8?style=flat-square)
+![ETF US](https://img.shields.io/badge/🇺🇸_ETF_US-6-002395?style=flat-square)
+![Actions US](https://img.shields.io/badge/🇺🇸_Actions_US-12-1D4ED8?style=flat-square)
+![Actions FR](https://img.shields.io/badge/🇫🇷_Actions_FR-5-ED2939?style=flat-square)
+![ETF EU](https://img.shields.io/badge/🇪🇺_ETF_EU-4-C8102E?style=flat-square)
+![Symboles](https://img.shields.io/badge/Symboles_totaux-27-3B82F6?style=flat-square)
+![Vues](https://img.shields.io/badge/Vues-8-1D4ED8?style=flat-square)
+![Source](https://img.shields.io/badge/Source-Yahoo_Finance-22c55e?style=flat-square)
+![MAJ](https://img.shields.io/badge/Mise_à_jour-Horaire-f59e0b?style=flat-square)
+![Langue](https://img.shields.io/badge/Langue-Français-C8102E?style=flat-square)
 ![Statut](https://img.shields.io/badge/Statut-Stable-22c55e?style=flat-square)
 
 ![Made with ❤️](https://img.shields.io/badge/Made_with-❤️-ED2939?style=flat-square)
 ![France](https://img.shields.io/badge/Thème-🇫🇷_Bleu_Blanc_Rouge-002395?style=flat-square)
 ![Space](https://img.shields.io/badge/Thème-🚀_NewSpace-1D4ED8?style=flat-square)
+![Europe](https://img.shields.io/badge/Thème-🇪🇺_Défense_Europe-3B82F6?style=flat-square)
 
 ---
 
-Dashboard interactif en **HTML / CSS / JavaScript** (fichier unique) permettant de suivre les **ETF spatiaux** et les **actions NewSpace** en temps réel, avec analyse comparative, gestion de portefeuille, alertes de prix et prédictions ML.
+Dashboard interactif en **HTML / CSS / JavaScript** (fichier unique) permettant de suivre les **ETF spatiaux** et les **actions NewSpace** des marchés **américain** et **européen**, avec analyse comparative, gestion de portefeuille multi-devises, alertes de prix et prédictions ML.
 
 Thème visuel : **bleu, blanc, rouge** 🇫🇷 · **Données Yahoo Finance** via GitHub Actions
 
@@ -37,9 +42,12 @@ Thème visuel : **bleu, blanc, rouge** 🇫🇷 · **Données Yahoo Finance** vi
 
 ## 📖 Description
 
-Ce projet est un **tracker financier spécialisé** dans le secteur spatial. Il suit en temps réel les principaux ETF du NewSpace ainsi que les actions des entreprises spatiales émergentes (Rocket Lab, AST SpaceMobile, Planet Labs, Virgin Galactic…).
+Ce projet est un **tracker financier spécialisé** dans le secteur spatial et la défense, couvrant **deux continents** :
 
-Les données sont récupérées automatiquement depuis **Yahoo Finance** via un workflow **GitHub Actions** qui s'exécute toutes les heures pendant les heures d'ouverture des marchés américains.
+- 🇺🇸 **Marché américain** — ETF NewSpace (SPCX, UFO, ARKX…) et actions émergentes (Rocket Lab, AST SpaceMobile, Planet Labs…)
+- 🇫🇷🇪🇺 **Marché européen** — Actions françaises (Airbus, Thales, Dassault, Safran, Eutelsat) et ETF défense/spatial européens
+
+Les données sont récupérées automatiquement depuis **Yahoo Finance** via un workflow **GitHub Actions** qui s'exécute toutes les heures pendant les heures d'ouverture des marchés.
 
 ---
 
@@ -48,9 +56,11 @@ Les données sont récupérées automatiquement depuis **Yahoo Finance** via un 
 ![Dashboard](https://img.shields.io/badge/📈_Dashboard-Prix_%2B_Graphiques-002395?style=flat-square)
 ![Comparatif](https://img.shields.io/badge/🏆_Comparatif-Score_ETF-1D4ED8?style=flat-square)
 ![Holdings](https://img.shields.io/badge/📊_Holdings-Composition_SPCX-3B82F6?style=flat-square)
-![Portfolio](https://img.shields.io/badge/💰_Portefeuille-Virtuel_%2B_P%26L-ED2939?style=flat-square)
-![Alertes](https://img.shields.io/badge/🔔_Alertes-Prix_cibles-C8102E?style=flat-square)
-![Prédictions](https://img.shields.io/badge/🤖_Prédictions-Régression_poly-22c55e?style=flat-square)
+![France](https://img.shields.io/badge/🇫🇷_France_%2F_Europe-Actions_%2B_ETF-ED2939?style=flat-square)
+![Compare](https://img.shields.io/badge/🌍_Comparaison-US_vs_EU-C8102E?style=flat-square)
+![Portfolio](https://img.shields.io/badge/💰_Portefeuille-Multi-devises-f59e0b?style=flat-square)
+![Alertes](https://img.shields.io/badge/🔔_Alertes-Prix_cibles-22c55e?style=flat-square)
+![Prédictions](https://img.shields.io/badge/🤖_Prédictions-Régression_poly-a855f7?style=flat-square)
 
 ### 📈 SPCX Dashboard
 - Prix en temps réel avec variation journalière
@@ -67,18 +77,30 @@ Les données sont récupérées automatiquement depuis **Yahoo Finance** via un 
 
 ### 📊 Holdings SPCX
 - Composition complète du fonds (12 positions)
-- Répartition sectorielle (Lanceurs, Satellites, Imagerie, Comms, etc.)
+- Répartition sectorielle (Lanceurs, Satellites, Imagerie, Comms…)
 - Top 10 holdings par pondération
 - Valeur estimée par ligne
 
+### 🇫🇷 France / Europe
+- **5 actions françaises** : Airbus, Thales, Dassault, Safran, Eutelsat
+- **4 ETF européens** : WisdomTree Defense, Seraphim New Space, BNP Easy Defense…
+- Indicateur d'éligibilité **PEA**
+- Graphiques comparatifs séparés (actions FR / ETF EU)
+
+### 🌍 Comparaison US / Europe
+- **Synthèse bicolore** : performances moyennes des deux marchés
+- **Top 5 US** et **Top 5 Europe** en temps réel
+- Écart de performance US vs EU
+- Graphique **multi-sélection** US + FR + EU
+
 ### 💰 Portefeuille virtuel
-- Ajout de positions (ETF et actions)
+- Ajout de positions (ETF US, ETF EU, actions US, actions FR)
 - Calcul automatique du **P&L** en temps réel
-- Vue consolidée valeur / coût / profit
+- Gestion multi-devises (USD / EUR)
 - Persistance en **localStorage**
 
 ### 🔔 Alertes de prix
-- Création d'alertes avec condition (au-dessus / en-dessous)
+- Création d'alertes (au-dessus / en-dessous)
 - Détection automatique du déclenchement
 - Statut visuel : ⏳ en attente · 🔔 déclenchée
 - Persistance en **localStorage**
@@ -87,7 +109,7 @@ Les données sont récupérées automatiquement depuis **Yahoo Finance** via un 
 - Régression polynomiale (degrés 1 à 4)
 - Intervalle de confiance automatique
 - Détection de tendance : **haussière** 📈 · **baissière** 📉 · **neutre** ➡️
-- Tableau détaillé des prédictions jour par jour
+- Tableau détaillé jour par jour
 
 ---
 
@@ -160,9 +182,9 @@ Le fichier `index.html` contient :
 
 ---
 
-## 📊 Symboles suivis
+## 📊 Symboles suivis — 27 au total
 
-### ETF spatiaux (6)
+### 🇺🇸 ETF US (6)
 
 | Symbole | Nom complet | AUM | Frais |
 |---------|-------------|-----|-------|
@@ -173,7 +195,7 @@ Le fichier `index.html` contient :
 | **ITA** | iShares US Aerospace & Defense | $5.2B | 0.40% |
 | **PPA** | Invesco Aerospace & Defense | $2.1B | 0.56% |
 
-### Actions NewSpace (12) — Holdings SPCX
+### 🇺🇸 Actions US (12) — Holdings SPCX
 
 | Symbole | Société | Secteur | Poids |
 |---------|---------|---------|-------|
@@ -189,6 +211,25 @@ Le fichier `index.html` contient :
 | **SATL** | Satellogic | Imagerie | 2.8% |
 | **ASTR** | Astra Space | Lanceurs | 2.5% |
 | **MNTS** | Momentus | Logistique | 1.8% |
+
+### 🇫🇷 Actions françaises (5)
+
+| Symbole | Société | Secteur | Devise |
+|---------|---------|---------|--------|
+| **AIR.PA** | Airbus SE | Aéronautique | EUR |
+| **HO.PA** | Thales S.A. | Défense & Spatial | EUR |
+| **AM.PA** | Dassault Aviation | Aviation | EUR |
+| **SAF.PA** | Safran S.A. | Aéronautique | EUR |
+| **ETL.PA** | Eutelsat Communications | Satellites | EUR |
+
+### 🇪🇺 ETF européens (4)
+
+| Symbole | Nom | AUM | Frais | PEA |
+|---------|-----|-----|-------|-----|
+| **WDEF.DE** | WisdomTree Europe Defence UCITS | $4.2B | 0.40% | ❌ |
+| **SERA.DE** | Seraphim New Space UCITS | $50M | 0.75% | ❌ |
+| **WSPC.DE** | WisdomTree Space Economy | $100M | 0.50% | ❌ |
+| **EUDF.PA** | BNP Paribas Easy Europe Defense | $500M | **0.18%** | ✅ |
 
 ---
 
@@ -212,17 +253,26 @@ Le fichier `scripts/fetch-yahoo.js` interroge **Yahoo Finance** pour chaque symb
     "SPCX": {
       "symbol": "SPCX",
       "name": "SPAC and NewSpace ETF",
+      "currency": "USD",
       "price": 12.45,
       "previousClose": 12.30,
       "history": [
         { "date": "2026-09-17", "close": 12.30, "volume": 145000 },
         { "date": "2026-09-18", "close": 12.45, "volume": 168000 }
       ]
+    },
+    "AIR.PA": {
+      "symbol": "AIR.PA",
+      "name": "Airbus SE",
+      "currency": "EUR",
+      "price": 198.50,
+      "history": [ /* ... */ ]
     }
   },
   "timestamp": "2026-09-18T14:00:00.000Z",
   "source": "Yahoo Finance",
-  "count": 18
+  "count": 27,
+  "regions": { "us": 18, "fr": 5, "eu": 4 }
 }
 ```
 
@@ -232,52 +282,41 @@ Le fichier `scripts/fetch-yahoo.js` interroge **Yahoo Finance** pour chaque symb
 GitHub Actions (cron horaire)
     ↓ Node.js (sans CORS)
 Yahoo Finance API
-    ↓ données JSON
+    ↓ données JSON (27 symboles)
 Commit → data/stocks.json
     ↓ GitHub Pages sert le fichier
 Dashboard fetch() local (pas de CORS)
     ↓
-Affichage temps réel
+Affichage temps réel US + FR + EU
 ```
 
 ---
 
 ## 🎨 Personnalisation
 
-### 1. Modifier les ETF suivis
+### 1. Modifier les symboles suivis
 
-Dans `index.html`, tableau `SPACE_ETFS` :
+Dans `index.html`, cherchez les constantes `SPACE_ETFS`, `SPCX_HOLDINGS`, `FRENCH_STOCKS`, `EUROPEAN_ETFS` :
 
 ```javascript
-const SPACE_ETFS = {
-  'SPCX': {name:'SPAC & NewSpace ETF', aum:125e6, expense_ratio:0.75, holdings:25, base:12.50},
-  // Ajoutez vos propres ETF ici
+const FRENCH_STOCKS = {
+  'AIR.PA': {name:'Airbus SE', sector:'Aéronautique', base:198.00, currency:'EUR'},
+  // Ajoutez vos propres symboles ici
 };
 ```
 
-### 2. Modifier les holdings
-
-Tableau `SPCX_HOLDINGS` :
-
-```javascript
-const SPCX_HOLDINGS = {
-  'RKLB': {name:'Rocket Lab USA', weight:12.5, sector:'Lanceurs', base:5.20},
-  // ...
-};
-```
-
-### 3. Modifier les symboles du workflow
-
-Dans `scripts/fetch-yahoo.js` :
+Et dans `scripts/fetch-yahoo.js`, ajoutez-les au tableau `SYMBOLS` :
 
 ```javascript
 const SYMBOLS = {
-  etfs:   ['SPCX', 'UFO', 'ARKX', 'ROKT', 'ITA', 'PPA'],
-  stocks: ['RKLB', 'ASTS', 'RDW', /* ... */]
+  etfs_us: ['SPCX', 'UFO', 'ARKX', 'ROKT', 'ITA', 'PPA'],
+  stocks_us: ['RKLB', 'ASTS', /* ... */],
+  stocks_fr: ['AIR.PA', 'HO.PA', /* ... */],
+  etfs_eu: ['WDEF.DE', 'SERA.DE', /* ... */]
 };
 ```
 
-### 4. Modifier le thème
+### 2. Modifier les couleurs
 
 Les variables CSS sont définies dans `:root` :
 
@@ -287,6 +326,18 @@ Les variables CSS sont définies dans `:root` :
   --rouge:#ED2939;
   --blanc:#ffffff;
   /* ... */
+}
+```
+
+### 3. Modifier le thème des scores
+
+Fonction `scoreGrade()` :
+
+```javascript
+function scoreGrade(score){
+  if (score >= 75) return {text:'EXCELLENT', cls:'score-excellent', icon:'🌟'};
+  if (score >= 60) return {text:'TRÈS BON',  cls:'score-good',      icon:'📈'};
+  // ...
 }
 ```
 
@@ -358,6 +409,7 @@ SOFTWARE.
 - Données de marché : **Yahoo Finance**
 - Automatisation : **GitHub Actions**
 - Inspiration : dashboard Streamlit original « SPCX & Space ETF Tracker »
+- Couverture : 🇺🇸 Marché US · 🇫🇷🇪🇺 Marché européen
 - Thème visuel : bleu, blanc, rouge — en hommage à la France 🇫🇷
 
 ---
@@ -368,7 +420,7 @@ SOFTWARE.
 
 ---
 
-**Bon trading !** 🚀🌌📈
+**Bon tracking !** 🚀🌌📈
 
 [![Voir sur GitHub](https://img.shields.io/badge/Voir_sur-GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/gunout/spcx)
 [![Voir la Démo](https://img.shields.io/badge/Voir_la-Démo-002395?style=for-the-badge&logo=githubpages&logoColor=white)](https://gunout.github.io/spcx/)
