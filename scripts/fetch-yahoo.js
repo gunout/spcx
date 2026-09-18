@@ -1,23 +1,38 @@
 // scripts/fetch-yahoo.js
-// Récupère les cours Yahoo Finance pour tous les symboles du dashboard
+// Récupère les cours Yahoo Finance pour tous les symboles US + FR + EU
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-/* Tous les symboles à suivre */
+/* =========================================================
+   SYMBOLES À SUIVRE
+   ========================================================= */
 const SYMBOLS = {
-  etfs:   ['SPCX', 'UFO', 'ARKX', 'ROKT', 'ITA', 'PPA'],
-  stocks: ['RKLB', 'ASTS', 'RDW', 'PL', 'SPCE', 'GSAT', 'IRDM', 'LLAP', 'BKSY', 'SATL', 'ASTR', 'MNTS']
+  // 🇺🇸 ETF US
+  etfs_us: ['SPCX', 'UFO', 'ARKX', 'ROKT', 'ITA', 'PPA'],
+
+  // 🇺🇸 Actions US (holdings SPCX)
+  stocks_us: ['RKLB', 'ASTS', 'RDW', 'PL', 'SPCE', 'GSAT', 'IRDM', 'LLAP', 'BKSY', 'SATL', 'ASTR', 'MNTS'],
+
+  // 🇫🇷 Actions françaises (suffixe .PA pour Euronext Paris)
+  stocks_fr: ['AIR.PA', 'HO.PA', 'AM.PA', 'SAF.PA', 'ETL.PA'],
+
+  // 🇪🇺 ETF européens
+  etfs_eu: ['WDEF.DE', 'SERA.DE', 'WSPC.DE', 'EUDF.PA']
 };
 
-const ALL_SYMBOLS = [...SYMBOLS.etfs, ...SYMBOLS.stocks];
+const ALL_SYMBOLS = [
+  ...SYMBOLS.etfs_us,
+  ...SYMBOLS.stocks_us,
+  ...SYMBOLS.stocks_fr,
+  ...SYMBOLS.etfs_eu
+];
 
 /* =========================================================
    1. Récupération Yahoo Finance
    ========================================================= */
 async function fetchYahoo(symbol, range = '3mo', interval = '1d') {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${range}&interval=${interval}`;
-  console.log(`🌐 ${symbol} → ${url}`);
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=${range}&interval=${interval}`;
 
   const res = await fetch(url, {
     headers: {
@@ -41,11 +56,13 @@ async function fetchYahoo(symbol, range = '3mo', interval = '1d') {
   const timestamps = result.timestamp;
   const quote = result.indicators.quote[0];
 
-  const history = timestamps.map((ts, i) => ({
-    date: new Date(ts * 1000).toISOString().slice(0, 10),
-    close: quote.close[i] || 0,
-    volume: quote.volume[i] || 0
-  })).filter(h => h.close > 0);
+  const history = timestamps
+    .map((ts, i) => ({
+      date: new Date(ts * 1000).toISOString().slice(0, 10),
+      close: quote.close[i] || 0,
+      volume: quote.volume[i] || 0
+    }))
+    .filter(h => h.close > 0);
 
   return {
     symbol,
@@ -88,7 +105,12 @@ async function sauvegarder(stocks) {
     stocks,
     timestamp: new Date().toISOString(),
     source: 'Yahoo Finance',
-    count: Object.keys(stocks).length
+    count: Object.keys(stocks).length,
+    regions: {
+      us: [...SYMBOLS.etfs_us, ...SYMBOLS.stocks_us].length,
+      fr: SYMBOLS.stocks_fr.length,
+      eu: SYMBOLS.etfs_eu.length
+    }
   };
 
   await fs.writeFile(file, JSON.stringify(payload, null, 2), 'utf-8');
@@ -100,18 +122,28 @@ async function sauvegarder(stocks) {
    ========================================================= */
 async function main() {
   console.log('🚀 Récupération des données Yahoo Finance…\n');
+  console.log(`   🇺🇸 US : ${SYMBOLS.etfs_us.length + SYMBOLS.stocks_us.length} symboles`);
+  console.log(`   🇫🇷 FR : ${SYMBOLS.stocks_fr.length} symboles`);
+  console.log(`   🇪🇺 EU : ${SYMBOLS.etfs_eu.length} symboles\n`);
+
   const stocks = {};
+  let successCount = 0;
+  let failCount = 0;
 
   for (const symbol of ALL_SYMBOLS) {
     try {
       stocks[symbol] = await fetchYahoo(symbol, '3mo', '1d');
-      console.log(`✅ ${symbol} : ${stocks[symbol].history.length} jours · $${stocks[symbol].price}\n`);
+      console.log(`✅ ${symbol.padEnd(10)} : ${stocks[symbol].history.length} jours · ${stocks[symbol].price} ${stocks[symbol].currency}`);
+      successCount++;
       // Pause pour éviter le rate limit Yahoo
       await new Promise(r => setTimeout(r, 400));
     } catch (err) {
-      console.warn(`⚠️  ${symbol} échoué : ${err.message}\n`);
+      console.warn(`⚠️  ${symbol.padEnd(10)} échoué : ${err.message}`);
+      failCount++;
     }
   }
+
+  console.log(`\n📊 Résumé : ${successCount} OK / ${failCount} échecs`);
 
   /* Si aucun symbole n'a pu être récupéré, on utilise le fallback */
   if (Object.keys(stocks).length === 0) {
