@@ -5,18 +5,13 @@
       "name": "Space Exploration Technologies Corp.",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 140.62,
+      "price": 141.31,
       "previousClose": 114.53,
-      "dayHigh": 142.72,
+      "dayHigh": 142.73,
       "dayLow": 137.557,
       "fiftyTwoWeekHigh": 225.64,
       "fiftyTwoWeekLow": 104.83,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 114.52999877929688,
-          "volume": 70524000
-        },
         {
           "date": "2026-08-04",
           "close": 125.33000183105469,
@@ -339,8 +334,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 140.6199951171875,
-          "volume": 53714845
+          "close": 141.30999755859375,
+          "volume": 71608414
         }
       ]
     },
@@ -349,18 +344,13 @@
       "name": "Procure Space ETF",
       "currency": "USD",
       "exchange": "NGM",
-      "price": 40.5,
+      "price": 40.57,
       "previousClose": 45.45,
       "dayHigh": 40.94,
       "dayLow": 40.06,
       "fiftyTwoWeekHigh": 68.212,
       "fiftyTwoWeekLow": 30.89,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 45.45000076293945,
-          "volume": 1208800
-        },
         {
           "date": "2026-08-04",
           "close": 47.56999969482422,
@@ -683,8 +673,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 40.5,
-          "volume": 68032
+          "close": 40.56999969482422,
+          "volume": 96740
         }
       ]
     },
@@ -693,18 +683,13 @@
       "name": "ARK Space & Defense Innovation ETF",
       "currency": "USD",
       "exchange": "BTS",
-      "price": 29.84,
+      "price": 29.91,
       "previousClose": 31.59,
       "dayHigh": 30.125,
       "dayLow": 29.71,
       "fiftyTwoWeekHigh": 37.89,
       "fiftyTwoWeekLow": 25.17,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 31.59000015258789,
-          "volume": 511000
-        },
         {
           "date": "2026-08-04",
           "close": 33.20000076293945,
@@ -1027,8 +1012,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 29.84000015258789,
-          "volume": 201451
+          "close": 29.90999984741211,
+          "volume": 283128
         }
       ]
     },
@@ -1037,18 +1022,13 @@
       "name": "State Street SPDR S&P Kensho Final Frontiers ETF",
       "currency": "USD",
       "exchange": "PCX",
-      "price": 103.94,
+      "price": 103.24,
       "previousClose": 113.75,
       "dayHigh": 104.84,
-      "dayLow": 103.69,
+      "dayLow": 103.24,
       "fiftyTwoWeekHigh": 137.63,
       "fiftyTwoWeekLow": 72.64,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 113.75,
-          "volume": 16200
-        },
         {
           "date": "2026-08-04",
           "close": 117.8499984741211,
@@ -1371,8 +1351,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 103.94000244140625,
-          "volume": 3893
+          "close": 103.23999786376953,
+          "volume": 5975
         }
       ]
     },
@@ -1381,18 +1361,13 @@
       "name": "iShares U.S. Aerospace & Defense ETF",
       "currency": "USD",
       "exchange": "BTS",
-      "price": 216.596,
+      "price": 216.17,
       "previousClose": 246.08,
       "dayHigh": 218.73,
       "dayLow": 214.77,
       "fiftyTwoWeekHigh": 256.6,
       "fiftyTwoWeekLow": 195.71,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 246.0800018310547,
-          "volume": 582200
-        },
         {
           "date": "2026-08-04",
           "close": 250.64999389648438,
@@ -1715,8 +1690,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 216.59649658203125,
-          "volume": 735868
+          "close": 216.1699981689453,
+          "volume": 1268877
         }
       ]
     },
@@ -1725,18 +1700,13 @@
       "name": "Invesco Aerospace & Defense ETF",
       "currency": "USD",
       "exchange": "PCX",
-      "price": 162.31,
+      "price": 162.13,
       "previousClose": 179.14,
       "dayHigh": 163.77,
       "dayLow": 161.04,
       "fiftyTwoWeekHigh": 186.3,
       "fiftyTwoWeekLow": 144.29,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 179.13999938964844,
-          "volume": 150200
-        },
         {
           "date": "2026-08-04",
           "close": 183.5399932861328,
@@ -2059,8 +2029,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 162.30999755859375,
-          "volume": 171053
+          "close": 162.1300048828125,
+          "volume": 196944
         }
       ]
     },
@@ -2069,18 +2039,13 @@
       "name": "Rocket Lab Corporation",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 53.57,
+      "price": 54.43,
       "previousClose": 70.43,
       "dayHigh": 54.94,
       "dayLow": 52.9,
       "fiftyTwoWeekHigh": 151,
       "fiftyTwoWeekLow": 37.57,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 70.43000030517578,
-          "volume": 16768900
-        },
         {
           "date": "2026-08-04",
           "close": 74.4800033569336,
@@ -2403,8 +2368,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 53.56999969482422,
-          "volume": 7901026
+          "close": 54.43000030517578,
+          "volume": 13668766
         }
       ]
     },
@@ -2413,18 +2378,13 @@
       "name": "AST SpaceMobile, Inc.",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 37.29,
+      "price": 37.15,
       "previousClose": 63.52,
       "dayHigh": 38.68,
       "dayLow": 36.63,
       "fiftyTwoWeekHigh": 133.86,
       "fiftyTwoWeekLow": 36.08,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 63.52000045776367,
-          "volume": 12578200
-        },
         {
           "date": "2026-08-04",
           "close": 70.30999755859375,
@@ -2747,8 +2707,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 37.290000915527344,
-          "volume": 6802923
+          "close": 37.150001525878906,
+          "volume": 9254037
         }
       ]
     },
@@ -2757,18 +2717,13 @@
       "name": "Redwire Corporation",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 8.005,
+      "price": 8.12,
       "previousClose": 9.64,
       "dayHigh": 8.22,
       "dayLow": 7.97,
       "fiftyTwoWeekHigh": 26.64,
       "fiftyTwoWeekLow": 4.87,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 9.640000343322754,
-          "volume": 19150400
-        },
         {
           "date": "2026-08-04",
           "close": 10.630000114440918,
@@ -3091,8 +3046,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 8.005000114440918,
-          "volume": 8112413
+          "close": 8.119999885559082,
+          "volume": 12164782
         }
       ]
     },
@@ -3101,18 +3056,13 @@
       "name": "Planet Labs PBC",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 13.52,
+      "price": 13.51,
       "previousClose": 21.53,
       "dayHigh": 13.745,
       "dayLow": 13.17,
       "fiftyTwoWeekHigh": 51.76,
       "fiftyTwoWeekLow": 10.52,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 21.530000686645508,
-          "volume": 6090500
-        },
         {
           "date": "2026-08-04",
           "close": 22.829999923706055,
@@ -3435,8 +3385,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 13.520000457763672,
-          "volume": 3344372
+          "close": 13.510000228881836,
+          "volume": 5604353
         }
       ]
     },
@@ -3452,11 +3402,6 @@
       "fiftyTwoWeekHigh": 8.9,
       "fiftyTwoWeekLow": 2.13,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 2.819999933242798,
-          "volume": 11481200
-        },
         {
           "date": "2026-08-04",
           "close": 2.950000047683716,
@@ -3779,8 +3724,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 2.5000998973846436,
-          "volume": 2182291
+          "close": 2.5,
+          "volume": 3120960
         }
       ]
     },
@@ -3789,18 +3734,13 @@
       "name": "Globalstar, Inc.",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 83.95,
+      "price": 83.77,
       "previousClose": 84.18,
       "dayHigh": 84.46,
       "dayLow": 83,
       "fiftyTwoWeekHigh": 84.85,
       "fiftyTwoWeekLow": 46.5,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 84.18000030517578,
-          "volume": 1854700
-        },
         {
           "date": "2026-08-04",
           "close": 83.69000244140625,
@@ -4123,8 +4063,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 83.94999694824219,
-          "volume": 464102
+          "close": 83.7699966430664,
+          "volume": 698673
         }
       ]
     },
@@ -4133,18 +4073,13 @@
       "name": "Iridium Communications Inc.",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 44.305,
+      "price": 43.87,
       "previousClose": 48.32,
       "dayHigh": 44.89,
-      "dayLow": 43.85,
+      "dayLow": 43.81,
       "fiftyTwoWeekHigh": 57.18,
       "fiftyTwoWeekLow": 15.65,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 48.31999969482422,
-          "volume": 1295900
-        },
         {
           "date": "2026-08-04",
           "close": 49.61000061035156,
@@ -4467,8 +4402,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 44.30500030517578,
-          "volume": 334353
+          "close": 43.869998931884766,
+          "volume": 1160570
         }
       ]
     },
@@ -4477,18 +4412,13 @@
       "name": "BlackSky Technology Inc.",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 17.255,
+      "price": 17.44,
       "previousClose": 23.9,
       "dayHigh": 17.595,
       "dayLow": 16.9,
       "fiftyTwoWeekHigh": 52.88,
       "fiftyTwoWeekLow": 12.41,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 23.899999618530273,
-          "volume": 922200
-        },
         {
           "date": "2026-08-04",
           "close": 25.40999984741211,
@@ -4811,8 +4741,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 17.2549991607666,
-          "volume": 601269
+          "close": 17.440000534057617,
+          "volume": 931015
         }
       ]
     },
@@ -4821,18 +4751,13 @@
       "name": "Satellogic Inc.",
       "currency": "USD",
       "exchange": "NCM",
-      "price": 3.255,
+      "price": 3.29,
       "previousClose": 3.955,
       "dayHigh": 3.335,
       "dayLow": 3.17,
       "fiftyTwoWeekHigh": 12,
       "fiftyTwoWeekLow": 1.255,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 3.9549999237060547,
-          "volume": 5221600
-        },
         {
           "date": "2026-08-04",
           "close": 4.489999771118164,
@@ -5155,8 +5080,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 3.255000114440918,
-          "volume": 2299904
+          "close": 3.2899999618530273,
+          "volume": 3906022
         }
       ]
     },
@@ -5165,18 +5090,13 @@
       "name": "Momentus Inc.",
       "currency": "USD",
       "exchange": "NCM",
-      "price": 1.87,
+      "price": 1.86,
       "previousClose": 4.2,
       "dayHigh": 2.3,
       "dayLow": 1.82,
       "fiftyTwoWeekHigh": 22.2,
       "fiftyTwoWeekLow": 1.7,
       "history": [
-        {
-          "date": "2026-08-03",
-          "close": 4.199999809265137,
-          "volume": 1200500
-        },
         {
           "date": "2026-08-04",
           "close": 4.550000190734863,
@@ -5499,8 +5419,8 @@
         },
         {
           "date": "2026-11-03",
-          "close": 1.8700000047683716,
-          "volume": 1821221
+          "close": 1.8600000143051147,
+          "volume": 1982845
         }
       ]
     },
@@ -5845,11 +5765,6 @@
           "date": "2026-11-02",
           "close": 196.0800018310547,
           "volume": 934317
-        },
-        {
-          "date": "2026-11-03",
-          "close": 193.32000732421875,
-          "volume": 1036015
         }
       ]
     },
@@ -6194,11 +6109,6 @@
           "date": "2026-11-02",
           "close": 232,
           "volume": 227226
-        },
-        {
-          "date": "2026-11-03",
-          "close": 233,
-          "volume": 362674
         }
       ]
     },
@@ -6543,11 +6453,6 @@
           "date": "2026-11-02",
           "close": 304.20001220703125,
           "volume": 37122
-        },
-        {
-          "date": "2026-11-03",
-          "close": 304.79998779296875,
-          "volume": 25214
         }
       ]
     },
@@ -6892,11 +6797,6 @@
           "date": "2026-11-02",
           "close": 288.20001220703125,
           "volume": 718837
-        },
-        {
-          "date": "2026-11-03",
-          "close": 285,
-          "volume": 980057
         }
       ]
     },
@@ -7241,11 +7141,6 @@
           "date": "2026-11-02",
           "close": 1.8615000247955322,
           "volume": 2099023
-        },
-        {
-          "date": "2026-11-03",
-          "close": 1.8674999475479126,
-          "volume": 1283663
         }
       ]
     },
@@ -7590,16 +7485,11 @@
           "date": "2026-11-02",
           "close": 13.6899995803833,
           "volume": 2186
-        },
-        {
-          "date": "2026-11-03",
-          "close": 13.663999557495117,
-          "volume": 2675
         }
       ]
     }
   },
-  "timestamp": "2026-11-03T19:58:27.098Z",
+  "timestamp": "2026-11-04T00:32:32.930Z",
   "source": "Yahoo Finance",
   "count": 22,
   "regions": {
